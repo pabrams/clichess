@@ -5,6 +5,8 @@ const headers = {
   Authorization: 'Bearer ' + process.env.lichessToken,
 };
 
-fetch('https://lichess.org/api/account', { headers })
+let accountPromise = fetch('https://lichess.org/api/account', { headers })
   .then(res => res.json())
   .then(console.log);
+
+accountPromise.then(() => console.log('done'));
