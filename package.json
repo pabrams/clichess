@@ -5,19 +5,15 @@
   "dependencies": {
     "chess.js": "^0.12.0",
     "dotenv": "^10.0.0",
-    "node-fetch": "^2.6.1",
-    "passport-lichess": "^2.0.0",
-    "terminal-kit": "^2.1.8"
+    "node-fetch": "^2.6.1"
   },
   "scripts": {
     "build": "tsc -p .",
-    "start": "npm run build && node index.js"
+    "start": "npm run build && node dist/index.js"
   },
   "devDependencies": {
     "@types/chess.js": "^0.11.2",
     "@types/node": "^16.11.7",
-    "@types/node-fetch": "^3.0.3",
-    "@types/terminal-kit": "^1.28.4",
     "tslib": "^2.3.1",
     "typescript": "^4.4.4"
   }
