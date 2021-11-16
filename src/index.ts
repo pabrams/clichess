@@ -20,7 +20,7 @@ let accountPromise = fetch('https://lichess.org/api/account', { headers })
   .then(console.log);
 
 accountPromise.then(() => {
-  console.log("\n^bAnd now, let's see what's on TV^r...\n");
+  console.log("\n{yellow}And now, let's see what's on TV{red}...\n");
 });
 
 const stream = fetch('https://lichess.org/api/tv/feed');
@@ -31,7 +31,7 @@ const onMessage = (obj: any) => {
   let fenLoaded: boolean = false;
   switch (obj.t){
     case 'featured': 
-      console.log('^BFEATURED LIVE STREAM\n\r');
+      console.log('{blue}FEATURED LIVE STREAM\n\r');
       // fall through...
     case 'fen':
       let lastMove = obj.d.lm;
@@ -49,7 +49,7 @@ const onMessage = (obj: any) => {
         // make the last move...
         let moved = chess.move(lastMove);
         if (!moved){
-          console.log(`^rThe move ^y${lastMove} ^rreceived from ^blichess.org ^ris invalid from position ^G${fen} !`)
+          console.log(`{red}The move {yellow}${lastMove}{/yellow}received from {blue}lichess.org {/blue}is invalid from position {green}${fen} {/green} !`)
           fenLoaded = chess.load(fen);
         }
       }
@@ -62,25 +62,25 @@ const onMessage = (obj: any) => {
         whitePlayer = obj.d.players[0];
         blackPlayer = obj.d.players[1];
       }
-      console.log(`^W${
+      console.log(`{white}${
         whitePlayer
           ? whitePlayer.user.name + 
-            ' ^y[^W' + (whitePlayer.user.title||'untitled') + '^y] ' + 
-            ' ^y(^G' + whitePlayer.rating + '^y)'
+            ' {yellow}[{white}' + (whitePlayer.user.title||'untitled') + '{/white}] ' + 
+            ' {/yellow}({green}' + whitePlayer.rating + '{/green})'
           : 'White'
-      } ^gclock: ^W${obj.d.wc}\n\r`);
-      console.log(`^W${
+      } {green}clock: {white}${obj.d.wc}\n\r`);
+      console.log(`{white}${
         blackPlayer
           ? blackPlayer.user.name + 
-            ' ^y[^r' + (blackPlayer.user.title||'untitled') + '^y] ' + 
-            ' ^y(^G' + blackPlayer.rating + '^y)'
+            ' {yellow}[{red}' + (blackPlayer.user.title||'untitled') + '{/red}] ' + 
+            ' {yellow}({green}' + blackPlayer.rating + '{/green})'
           : 'Black'
-      } ^gclock: ^w${obj.d.bc}\n\r\n\r`);
+      } {green}clock: {white}${obj.d.bc}\n\r\n\r`);
       break;
-    default: console.log(`^rUnknown response type: ^w${obj.t}`);
+    default: console.log(`{red}Unknown response type: {yellow}${obj.t}`);
   }
 }
-const onComplete = () => console.log('^YTHE LIVE STREAM HAS ENDED');
+const onComplete = () => console.log('{yellow}THE LIVE STREAM HAS ENDED');
 
 stream
   .then(readStream(onMessage))
