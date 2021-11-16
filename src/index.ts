@@ -18,7 +18,14 @@ interface Player {
 let screen = blessed.screen();
 let grid = new contrib.grid({rows: 12, cols:12, screen: screen})
 
-let board = grid.set(0,4,4,4, blessed.box, {
+
+let playersBox = grid.set(
+  0,0,2,5, blessed.box, { 
+    label: 'players', tags: true, content: ""
+  }
+);
+
+let boardBox = grid.set(0,5,4,4, blessed.box, {
   content: 'the game board',
   fg: "green",
   label: "main board",
@@ -26,26 +33,14 @@ let board = grid.set(0,4,4,4, blessed.box, {
   border: { type: "line",fg: "blue" }
 });
 
-let playersBox = grid.set(
-  4,4,2,4, blessed.box, { 
-    label: 'playersBox', tags: true, content: ""
-  }
-);
-
-let clocksBox = grid.set(
-  6,4,2,4, blessed.box, { 
-    label: 'Clocks', tags: true, content: ""
-  }
-);
-
 let log = grid.set(
-  0,8,12,4, contrib.log, { 
+  0,9,12,3, contrib.log, { 
     label: 'log', tags: true 
   }
 );
 
 let chess = new Chess();
-board.setContent(chess.ascii());
+boardBox.setContent(chess.ascii());
 screen.key(["C-c", "escape", "q"], () => {
   return process.exit(0);
 });
@@ -89,7 +84,7 @@ const onMessage = (obj: {
           fenLoaded = chess.load(fen);
         }
       }
-      board.setContent(chess.ascii());
+      boardBox.setContent(chess.ascii());
       if (obj.d.players && obj.d.players.length > 0){
         whitePlayer = obj.d.players[0];
         blackPlayer = obj.d.players[1];
@@ -100,22 +95,19 @@ const onMessage = (obj: {
             ' {yellow-fg}[{red-fg}' + (whitePlayer.user.title||'untitled') + '{/white-fg}] ' + 
             ' {/yellow-fg}({green-fg}' + whitePlayer.rating + '{/green-fg})'
           : 'White'
-      }\n`;
-      clockData += `{white-fg}{black-bg}White: ${obj.d.wc}\n`;
+      }: {magenta-fg}${obj.d.wc}{/magenta-fg}s\n`;
       playerData += `{blue-fg}${
         blackPlayer
           ? blackPlayer.user.name + 
             ' {yellow-fg}[{red-fg}' + (blackPlayer.user.title||'untitled') + '{/red-fg}] ' + 
             ' {yellow-fg}({green-fg}' + blackPlayer.rating + '{/green-fg})'
           : 'Black'
-      }\n\n`;
-      clockData += `{black-fg}{white-bg}Black: ${obj.d.bc}{/white-bg}{/black-fg}`;
+        }: {magenta-fg}${obj.d.bc}{/magenta-fg}s\n`;
       break;
     default: 
       log.log(`{red-fg}Unknown response type: {yellow-fg}${obj.t}`);
   }
   playerData && playersBox.setContent(playerData);
-  clockData && clocksBox.setContent(clockData);
   screen.render();
 }
 const onComplete = () => {
@@ -126,4 +118,3 @@ const onComplete = () => {
 stream
   .then(readStream(onMessage))
   .then(onComplete);
-  
