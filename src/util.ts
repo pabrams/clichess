@@ -1,14 +1,12 @@
 
-export const readStream = (processLine: { (obj: any): void; (arg0: any): void; }) => (response: { 
-  body: { 
-    on: (arg0: string, arg1: { (v: any): void; }) => void;
-  }; 
-}) => {
+export const readStream = (
+    processLine: (obj: any) => void 
+  ) => (response: any) => {
   const matcher = /\r?\n/;
   const decoder = new TextDecoder();
   let buf: string|undefined = '';
   return new Promise<void>((resolve, fail) => {
-    response.body.on('data', (v) => {
+    response.body.on('data', (v: any) => {
       const chunk = decoder.decode(v, { stream: true });
       buf += chunk;
       if (buf){
