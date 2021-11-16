@@ -6,6 +6,7 @@ import * as blessed from 'blessed';
 import * as contrib from 'blessed-contrib';
 import { Chess } from 'chess.js';
 import { readStream } from './util';
+import util from 'util';
 const headers = { Authorization: 'Bearer ' + process.env.lichessToken };
 
 interface Player {
@@ -13,19 +14,6 @@ interface Player {
   user: { name: string, title: string, id: string };
   rating: number
 }
-
-// interface tvResponse {
-//   t: string;
-//   d: { 
-//     fen: string; 
-//     lm: string;
-//     wc?: number; 
-//     bc?: number;
-//     id?: string;
-//     orientation?: string;
-//     players?: Player[];
-//   };
-// };
 
 let screen = blessed.screen();
 let grid = new contrib.grid({rows: 12, cols:12, screen: screen})
@@ -37,17 +25,34 @@ let board = grid.set(0,4,4,4, blessed.box, {
   tags: true,
   border: { type: "line",fg: "blue" }
 });
-let metadata = grid.set(8,4,4,4, blessed.box, { label: 'metadata', tags: true });
 
-let chess = new Chess();-
+let playersBox = grid.set(
+  4,4,2,4, blessed.box, { 
+    label: 'playersBox', tags: true, content: ""
+  }
+);
+
+let clocksBox = grid.set(
+  6,4,2,4, blessed.box, { 
+    label: 'Clocks', tags: true, content: ""
+  }
+);
+
+let log = grid.set(
+  0,8,12,4, contrib.log, { 
+    label: 'log', tags: true 
+  }
+);
+
+let chess = new Chess();
 board.setContent(chess.ascii());
 screen.key(["C-c", "escape", "q"], () => {
   return process.exit(0);
 });
-screen.render();
+
 const stream = fetch('https://lichess.org/api/tv/feed');
 let whitePlayer: Player, blackPlayer: Player;
-let playerData: string;
+
 const onMessage = (obj: {
   t: string; 
   d: {
@@ -59,14 +64,13 @@ const onMessage = (obj: {
     bc?: number; 
   }; 
 }) => {
-  console.log("obj", obj);
-  let fenLoaded: boolean = false;
+  let fenLoaded = false;
+  let playerData = "";
+  let clockData = "";
   switch (obj.t){
     case 'featured': 
-      metadata.setContent('{blue-fg}FEATURED LIVE STREAM{/blue-fg}\n\r');
       // fall through...
     case 'fen':
-      let lastMove = obj.d.lm;
       let fen = obj.d.fen.trim();
       // Add missing information to the FEN received from lichess.org,
       // which is not actually a valid FEN.
@@ -77,56 +81,49 @@ const onMessage = (obj: {
       else if(lastFenChar === 'R') {
         fen = fen + " w KQkq - 0 1";
       }
-      if (chess.history().length > 0) {
-        // make the last move...
-        if (lastMove){
-          let moved = chess.move(lastMove);
-          if (!moved){
-            console.log(`{red-fg}The move {yellow-fg}${lastMove}{/yellow-fg}received from {blue-fg}lichess.org {/blue-fg}is invalid from position {green-fg}${fen} {/green-fg} !`)
-            fenLoaded = chess.load(fen);
-          }
+      let lastMove = obj.d.lm;
+      if (lastMove){
+        log.log(lastMove);
+        let moved = chess.move(lastMove);
+        if (!moved){
+          fenLoaded = chess.load(fen);
         }
-        else {
-          throw ("undefined lastMove");
-        }
-      }
-      else {
-        // There is no history available, so just load the FEN.
-        fenLoaded = chess.load(fen);
       }
       board.setContent(chess.ascii());
       if (obj.d.players && obj.d.players.length > 0){
         whitePlayer = obj.d.players[0];
         blackPlayer = obj.d.players[1];
       }
-      playerData += `{white-fg}${
+      playerData += `{blue-fg}${
         whitePlayer
           ? whitePlayer.user.name + 
-            ' {yellow-fg}[{white-fg}' + (whitePlayer.user.title||'untitled') + '{/white-fg}] ' + 
+            ' {yellow-fg}[{red-fg}' + (whitePlayer.user.title||'untitled') + '{/white-fg}] ' + 
             ' {/yellow-fg}({green-fg}' + whitePlayer.rating + '{/green-fg})'
           : 'White'
-      } {green-fg}clock: {white-fg}${obj.d.wc}\n\r`;
-      playerData += `{white-fg}${
+      }\n`;
+      clockData += `{white-fg}{black-bg}White: ${obj.d.wc}\n`;
+      playerData += `{blue-fg}${
         blackPlayer
           ? blackPlayer.user.name + 
             ' {yellow-fg}[{red-fg}' + (blackPlayer.user.title||'untitled') + '{/red-fg}] ' + 
             ' {yellow-fg}({green-fg}' + blackPlayer.rating + '{/green-fg})'
           : 'Black'
-      } {green-fg}clock: {white-fg}${obj.d.bc}\n\r\n\r`;
+      }\n\n`;
+      clockData += `{black-fg}{white-bg}Black: ${obj.d.bc}{/white-bg}{/black-fg}`;
       break;
     default: 
-      console.log(`{red-fg}Unknown response type: {yellow-fg}${obj.t}`);
-      console.log("obj", obj);
+      log.log(`{red-fg}Unknown response type: {yellow-fg}${obj.t}`);
   }
-  playerData && metadata.setContent(playerData);
+  playerData && playersBox.setContent(playerData);
+  clockData && clocksBox.setContent(clockData);
   screen.render();
 }
 const onComplete = () => {
-  console.log('{yellow-fg}THE LIVE STREAM HAS ENDED');
+  log.log('{yellow-fg}THE LIVE STREAM HAS ENDED');
   screen.render();
 }
 
 stream
   .then(readStream(onMessage))
   .then(onComplete);
-
+  
