@@ -6,8 +6,11 @@ import * as blessed from 'blessed';
 import * as contrib from 'blessed-contrib';
 import { Chess } from 'chess.js';
 import { readStream } from './util';
-import util from 'util';
+import fs from 'fs';
+
 const headers = { Authorization: 'Bearer ' + process.env.lichessToken };
+
+const config = JSON.parse(fs.readFileSync('config.json').toString());
 
 interface Player {
   color: string;
@@ -15,9 +18,94 @@ interface Player {
   rating: number
 }
 
+const charIsOnBoard = (char: string) => {
+  if (config.board.useChessSymbols){
+    return char === '♚'
+      || char === '♔'
+      || char === '♛'
+      || char === '♕'
+      || char === '♜'
+      || char === '♖'
+      || char === '♝'
+      || char === '♗'
+      || char === '♘'
+      || char === '♞'
+      || char === '♟'
+      || char === '♙'
+      || char === '.'
+  }
+  else {
+    return char === 'K' 
+      || char === 'k'
+      || char === 'Q'
+      || char === 'q'
+      || char === 'R'
+      || char === 'r'
+      || char === 'B'
+      || char === 'b'
+      || char === 'N'
+      || char === 'n'
+      || char === 'P'
+      || char === 'p'
+  }
+}
+
+const mapChessAscii = (ascii: string) => {
+  ascii =  ascii.replaceAll(' ', '');
+  ascii =  ascii.replaceAll('+------------------------+', ' +--------+');
+
+  if (config.board.useChessSymbols){
+    ascii = ascii    
+      .replace('k', '♚')
+      .replace('K', '♚')
+      .replaceAll('Q', '♛')
+      .replaceAll('q', '♕')
+      .replaceAll('R', '♜')
+      .replaceAll('r', '♖')
+      .replaceAll('B', '♝')
+      .replaceAll('b', '♗')
+      .replaceAll('N', '♘')
+      .replaceAll('n', '♞')
+      .replaceAll('P', '♟')
+      .replaceAll('p', '♙')
+  }
+  let coloredSquares = "";
+  let chars = -1;
+  let whiteSquare = false;
+  ascii = ascii.replace('a♗cdefgh', '  abcdefgh');
+  if (!config.board.colorSquares){
+    coloredSquares = ascii;
+  }
+  else {
+    for (const asciiChar of ascii) {
+      if (charIsOnBoard(asciiChar)){
+        chars++;
+        // console.log(chars, chars%2, Math.floor(chars / 8) %2);
+        if (chars % 2 == 0){
+          whiteSquare = true;
+        }else{
+          whiteSquare = false;
+        }
+        if (Math.floor(chars / 8) % 2 !== 0){
+          whiteSquare = !whiteSquare;
+        }
+
+        if (whiteSquare){
+          coloredSquares += `${config.board.whiteSquare}${asciiChar}`;
+        }else{
+          coloredSquares += `${config.board.darkSquare}${asciiChar}`;
+        }
+      }
+      else{
+        coloredSquares += `{black-bg}{white-fg}${asciiChar}`;
+      }
+    }
+  }
+  return coloredSquares;
+}
+
 let screen = blessed.screen();
 let grid = new contrib.grid({rows: 12, cols:12, screen: screen})
-
 
 let playersBox = grid.set(
   0,0,2,5, blessed.box, { 
@@ -25,7 +113,7 @@ let playersBox = grid.set(
   }
 );
 
-let boardBox = grid.set(0,5,4,4, blessed.box, {
+let boardBox = grid.set(0,5,5,4, blessed.box, {
   content: 'the game board',
   fg: "green",
   label: "main board",
@@ -40,7 +128,7 @@ let log = grid.set(
 );
 
 let chess = new Chess();
-boardBox.setContent(chess.ascii());
+boardBox.setContent(mapChessAscii(chess.ascii()));
 screen.key(["C-c", "escape", "q"], () => {
   return process.exit(0);
 });
@@ -84,7 +172,7 @@ const onMessage = (obj: {
           fenLoaded = chess.load(fen);
         }
       }
-      boardBox.setContent(chess.ascii());
+      boardBox.setContent(mapChessAscii(chess.ascii()));
       if (obj.d.players && obj.d.players.length > 0){
         whitePlayer = obj.d.players[0];
         blackPlayer = obj.d.players[1];

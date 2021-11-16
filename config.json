@@ -1,0 +1,8 @@
+{
+  "board": {
+    "useChessSymbols": true,
+    "colorSquares": true,
+    "whiteSquare": "{yellow-bg}{blue-fg}",
+    "darkSquare": "{blue-bg}{yellow-fg}"
+  }
+}
