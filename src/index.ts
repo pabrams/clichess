@@ -100,7 +100,7 @@ const onMessage = (obj: {
         blackPlayer
           ? blackPlayer.user.name + 
             ' {yellow-fg}[{red-fg}' + (blackPlayer.user.title||'untitled') + '{/red-fg}] ' + 
-            ' {yellow-fg}({green-fg}' + blackPlayer.rating + '{/green-fg})'
+            ' {/yellow-fg}({green-fg}' + blackPlayer.rating + '{/green-fg})'
           : 'Black'
         }: {magenta-fg}${obj.d.bc}{/magenta-fg}s\n`;
       break;
