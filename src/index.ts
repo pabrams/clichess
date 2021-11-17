@@ -27,7 +27,7 @@ let boardBox = grid.set(0,0,6,3, blessed.box, {
   border: { type: "line",fg: "black" },
 });
 
-let playersBox = grid.set(0,3,6,3, blessed.box, {
+let playersBox = grid.set(0,3,6,6, blessed.box, {
   fg: "green",
   label: "Players/Clocks",
   tags: true,
@@ -35,7 +35,7 @@ let playersBox = grid.set(0,3,6,3, blessed.box, {
 });
 
 let log = grid.set(
-  0,7,9,3, contrib.log, { 
+  0,9,9,3, contrib.log, { 
     label: 'log', tags: true 
   }
 );
