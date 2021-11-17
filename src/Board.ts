@@ -76,7 +76,5 @@ export const mapChessAscii = (ascii: string) => {
     }
 
   }
-  // don't forget to put this back where we got it
-  coloredSquares = coloredSquares.replace("12345678", "abcdefgh");
   return coloredSquares;
 }
