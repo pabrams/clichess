@@ -50,7 +50,7 @@ const replaceLetterWithColoredSymbol = (letter: string, whiteSquare: boolean) =>
   if (letter.toUpperCase() === 'B') result = `${prefix}♝`;
   if (letter.toUpperCase() === 'N') result = `${prefix}♞`;
   if (letter.toUpperCase() === 'P') result = `${prefix}♟`;
-  if (letter.toUpperCase() === '.') result = `${prefix}.`;
+  if (letter.toUpperCase() === '.') result = `${prefix} `;
   return result;
 }
 
