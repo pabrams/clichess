@@ -61,7 +61,7 @@ export const mapChessAscii = (ascii: string) => {
   let chars = -1;
   let whiteSquare = false;
 
-  ascii = ascii.replaceAll('abcdefgh', '  12345678');
+  ascii = ascii.replaceAll('abcdefgh', '  abcdefgh');
   for (const asciiChar of ascii) {
     if (charIsOnBoard(asciiChar)){
       chars++;
