@@ -19,23 +19,20 @@ interface Player {
 let screen = blessed.screen();
 let grid = new contrib.grid({rows: 12, cols:12, screen: screen})
 
-let boardBox = grid.set(0,0,6,3, blessed.box, {
-  content: 'the game board',
-  fg: "green",
-  label: "main board",
+let boardBox = grid.set(0,0,3,3, blessed.box, {
+  label: "live feed",
   tags: true,
   border: { type: "line",fg: "black" },
 });
 
-let playersBox = grid.set(0,3,6,6, blessed.box, {
-  fg: "green",
-  label: "Players/Clocks",
+let playersBox = grid.set(0,3,3,3, blessed.box, {
+  label: "players and clocks",
   tags: true,
   border: { type: "line",fg: "black" },
 });
 
 let log = grid.set(
-  0,9,9,3, contrib.log, { 
+  0,9,4,3, contrib.log, { 
     label: 'log', tags: true 
   }
 );
@@ -108,6 +105,7 @@ const onMessage = (obj: {
 
       let boardContent = "\n";
       boardContent += mapChessAscii(chess.ascii());
+
       boardBox.setContent(boardContent);
       playerContent += '\n\n\n\n\n\n';
       // add White's's clock count to board content
