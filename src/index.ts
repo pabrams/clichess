@@ -158,7 +158,8 @@ const onMessage = (obj: {
       if (lastMove){
         log.log(lastMove);
         let moved = chess.move(lastMove, {sloppy: true});
-        if (!moved){  // HACK: if moving doesn't work, fall back to loadFen
+        if (!moved){  
+          // HACK: if moving doesn't work, fall back to loadFen
           fenLoaded = chess.load(fen);
         }
       }
