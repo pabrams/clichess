@@ -19,7 +19,7 @@ interface Player {
 let screen = blessed.screen();
 let grid = new contrib.grid({rows: 12, cols:12, screen: screen})
 
-let boardBox = grid.set(0,0,8,6, blessed.box, {
+let boardBox = grid.set(0,0,6,3, blessed.box, {
   content: 'the game board',
   fg: "green",
   label: "main board",
@@ -27,8 +27,15 @@ let boardBox = grid.set(0,0,8,6, blessed.box, {
   border: { type: "line",fg: "black" },
 });
 
+let playersBox = grid.set(0,3,6,3, blessed.box, {
+  fg: "green",
+  label: "Players/Clocks",
+  tags: true,
+  border: { type: "line",fg: "black" },
+});
+
 let log = grid.set(
-  0,8,6,3, contrib.log, { 
+  0,7,9,3, contrib.log, { 
     label: 'log', tags: true 
   }
 );
@@ -58,7 +65,7 @@ const onMessage = (obj: {
   let playerData = "";
   switch (obj.t){
     case 'featured': 
-      fullTurnCount = 0;
+      fullTurnCount = 1;
       // fall through...
     case 'fen':
       let fen = obj.d.fen.trim();
@@ -89,7 +96,7 @@ const onMessage = (obj: {
         whitePlayer = obj.d.players[0];
         blackPlayer = obj.d.players[1];
       }
-      let boardContent = `{blue-fg}${
+      let playerContent = `{blue-fg}${
         blackPlayer
           ? blackPlayer.user.name + 
             ' {yellow-fg}[{red-fg}' + (blackPlayer.user.title||'untitled') + '{/red-fg}] ' + 
@@ -97,13 +104,14 @@ const onMessage = (obj: {
           : 'Black'
       }\n`;
       // add white's clock count to board content
-      boardContent +=`{yellow-fg}${obj.d.wc}s\n`;
+      playerContent +=`{yellow-fg}${obj.d.wc}s\n`;
 
-      boardContent += "\n";
+      let boardContent = "\n";
       boardContent += mapChessAscii(chess.ascii());
       boardContent += "\n";
+      boardBox.setContent(boardContent);
 
-      boardContent += `{blue-fg}${
+      playerContent += `{blue-fg}${
         whitePlayer
           ? whitePlayer.user.name + 
             ' {yellow-fg}[{red-fg}' + (whitePlayer.user.title||'untitled') + '{/white-fg}] ' + 
@@ -111,8 +119,8 @@ const onMessage = (obj: {
           : 'White'
       }\n`;
       // add black's clock count to board content
-      boardContent +=`{yellow-fg}${obj.d.bc}s\n`;
-      boardBox.setContent(boardContent);
+      playerContent +=`{yellow-fg}${obj.d.bc}s\n`;
+      playersBox.setContent(playerContent);
       break;
     default: 
       log.log(`{red-fg}Unknown response type: {yellow-fg}${obj.t}`);

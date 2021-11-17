@@ -65,15 +65,18 @@ export const mapChessAscii = (ascii: string) => {
   for (const asciiChar of ascii) {
     if (charIsOnBoard(asciiChar)){
       chars++;
-      whiteSquare = (chars %2) == 1;
+      whiteSquare = (chars %2) == 0;
       if (Math.floor(chars / 8) % 2 !== 0){
         whiteSquare = !whiteSquare;
       }
-      let square = replaceLetterWithColoredSymbol(asciiChar, whiteSquare);
-      coloredSquares += square;
+      coloredSquares += replaceLetterWithColoredSymbol(asciiChar, whiteSquare);
     }
     else{
       coloredSquares += `{black-bg}{white-fg}${asciiChar}`;
     }
-  }  return coloredSquares;
+
+  }
+  // don't forget to put this back where we got it
+  coloredSquares = coloredSquares.replace("12345678", "abcdefgh");
+  return coloredSquares;
 }
