@@ -19,7 +19,7 @@ interface Player {
 let screen = blessed.screen();
 let grid = new contrib.grid({rows: 12, cols:12, screen: screen})
 
-let boardBox = grid.set(0,5,6,2, blessed.box, {
+let boardBox = grid.set(0,0,8,6, blessed.box, {
   content: 'the game board',
   fg: "green",
   label: "main board",
@@ -27,20 +27,8 @@ let boardBox = grid.set(0,5,6,2, blessed.box, {
   border: { type: "line",fg: "black" },
 });
 
-let darkPlayerBox = grid.set(
-  0,0,3,5, blessed.box, { 
-    label: 'Black', tags: true, content: '', border: {fg: 'black' }
-  }
-);
-
-let lightPlayerBox = grid.set(
-  3,0,3,5, blessed.box, { 
-    label: 'White', tags: true, content: '', border: {fg: 'black' }
-  }
-);
-
 let log = grid.set(
-  0,7,6,3, contrib.log, { 
+  0,8,6,3, contrib.log, { 
     label: 'log', tags: true 
   }
 );
@@ -54,6 +42,7 @@ screen.key(["C-c", "escape", "q"], () => {
 const stream = fetch('https://lichess.org/api/tv/feed');
 let whitePlayer: Player, blackPlayer: Player;
 
+let fullTurnCount = 0;
 const onMessage = (obj: {
   t: string; 
   d: {
@@ -69,6 +58,7 @@ const onMessage = (obj: {
   let playerData = "";
   switch (obj.t){
     case 'featured': 
+      fullTurnCount = 0;
       // fall through...
     case 'fen':
       let fen = obj.d.fen.trim();
@@ -83,37 +73,50 @@ const onMessage = (obj: {
       }
       let lastMove = obj.d.lm;
       if (lastMove){
-        log.log(lastMove);
+        if (fen.indexOf(" b ") > -1){
+          log.log(`${fullTurnCount++}. ${lastMove}`);
+        } 
+        else if (fen.indexOf(" w ") > -1){
+          log.log(`... ${lastMove}`);
+        };
         let moved = chess.move(lastMove, {sloppy: true});
         if (!moved){  
           // HACK: if moving doesn't work, fall back to loadFen
           fenLoaded = chess.load(fen);
         }
       }
-      boardBox.setContent(mapChessAscii(chess.ascii()));
       if (obj.d.players && obj.d.players.length > 0){
         whitePlayer = obj.d.players[0];
         blackPlayer = obj.d.players[1];
       }
-      lightPlayerBox.setContent(`{blue-fg}${
-        whitePlayer
-          ? whitePlayer.user.name + 
-            ' {yellow-fg}[{red-fg}' + (whitePlayer.user.title||'untitled') + '{/white-fg}] ' + 
-            '{/yellow-fg}({green-fg}' + whitePlayer.rating + '{/green-fg})'
-          : 'White'
-      }: {magenta-fg}${obj.d.wc}{/magenta-fg}s\n`);
-      darkPlayerBox.setContent(`{blue-fg}${
+      let boardContent = `{blue-fg}${
         blackPlayer
           ? blackPlayer.user.name + 
             ' {yellow-fg}[{red-fg}' + (blackPlayer.user.title||'untitled') + '{/red-fg}] ' + 
-            ' {/yellow-fg}({green-fg}' + blackPlayer.rating + '{/green-fg})'
+            ' {green-fg}' + blackPlayer.rating + '{/green-fg}'
           : 'Black'
-        }: {magenta-fg}${obj.d.bc}{/magenta-fg}s\n`);
+      }\n`;
+      // add white's clock count to board content
+      boardContent +=`{yellow-fg}${obj.d.wc}s\n`;
+
+      boardContent += "\n";
+      boardContent += mapChessAscii(chess.ascii());
+      boardContent += "\n";
+
+      boardContent += `{blue-fg}${
+        whitePlayer
+          ? whitePlayer.user.name + 
+            ' {yellow-fg}[{red-fg}' + (whitePlayer.user.title||'untitled') + '{/white-fg}] ' + 
+            '{/yellow-fg}{green-fg}' + whitePlayer.rating + '{/green-fg}'
+          : 'White'
+      }\n`;
+      // add black's clock count to board content
+      boardContent +=`{yellow-fg}${obj.d.bc}s\n`;
+      boardBox.setContent(boardContent);
       break;
     default: 
       log.log(`{red-fg}Unknown response type: {yellow-fg}${obj.t}`);
   }
-  // playerData && playersBox.setContent(playerData);
   screen.render();
 }
 const onComplete = () => {

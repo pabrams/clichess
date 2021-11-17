@@ -55,12 +55,13 @@ const replaceLetterWithColoredSymbol = (letter: string, whiteSquare: boolean) =>
 }
 
 export const mapChessAscii = (ascii: string) => {
-  ascii =  ascii.replaceAll(' ', '');
-  ascii =  ascii.replaceAll('+------------------------+', ' +--------+');
+  ascii = ascii.replaceAll(' ', '');
+  ascii = ascii.replaceAll('+------------------------+', ' +--------+');
   let coloredSquares = "";
   let chars = -1;
   let whiteSquare = false;
 
+  ascii = ascii.replaceAll('abcdefgh', '  12345678');
   for (const asciiChar of ascii) {
     if (charIsOnBoard(asciiChar)){
       chars++;
@@ -74,6 +75,5 @@ export const mapChessAscii = (ascii: string) => {
     else{
       coloredSquares += `{black-bg}{white-fg}${asciiChar}`;
     }
-  }
-  return coloredSquares;
+  }  return coloredSquares;
 }
