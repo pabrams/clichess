@@ -140,7 +140,6 @@ const onMessage = (obj: {
 }) => {
   let fenLoaded = false;
   let playerData = "";
-  // let clockData = "";
   switch (obj.t){
     case 'featured': 
       // fall through...
