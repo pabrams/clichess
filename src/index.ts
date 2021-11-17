@@ -9,7 +9,6 @@ import { readStream } from './util';
 import fs from 'fs';
 
 const headers = { Authorization: 'Bearer ' + process.env.lichessToken };
-
 const config = JSON.parse(fs.readFileSync('config.json').toString());
 
 interface Player {
@@ -44,7 +43,7 @@ const charIsOnBoard = (char: string) => {
       || char === '♟'
 }
 
-const replaceLetterWithSymbol = (letter: string, whiteSquare: boolean) => {
+const replaceLetterWithColoredSymbol = (letter: string, whiteSquare: boolean) => {
   let result = letter;
   let prefix = "";
 
@@ -84,7 +83,7 @@ const mapChessAscii = (ascii: string) => {
       if (Math.floor(chars / 8) % 2 !== 0){
         whiteSquare = !whiteSquare;
       }
-      let square = replaceLetterWithSymbol(asciiChar, whiteSquare);
+      let square = replaceLetterWithColoredSymbol(asciiChar, whiteSquare);
       coloredSquares += square;
     }
     else{
