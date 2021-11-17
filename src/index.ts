@@ -19,22 +19,28 @@ interface Player {
 let screen = blessed.screen();
 let grid = new contrib.grid({rows: 12, cols:12, screen: screen})
 
-let playersBox = grid.set(
-  0,0,2,5, blessed.box, { 
-    label: 'players', tags: true, content: ""
-  }
-);
-
-let boardBox = grid.set(0,5,5,4, blessed.box, {
+let boardBox = grid.set(0,5,6,2, blessed.box, {
   content: 'the game board',
   fg: "green",
   label: "main board",
   tags: true,
-  border: { type: "line",fg: "blue" }
+  border: { type: "line",fg: "black" },
 });
 
+let darkPlayerBox = grid.set(
+  0,0,3,5, blessed.box, { 
+    label: 'Black', tags: true, content: '', border: {fg: 'black' }
+  }
+);
+
+let lightPlayerBox = grid.set(
+  3,0,3,5, blessed.box, { 
+    label: 'White', tags: true, content: '', border: {fg: 'black' }
+  }
+);
+
 let log = grid.set(
-  0,9,12,3, contrib.log, { 
+  0,7,6,3, contrib.log, { 
     label: 'log', tags: true 
   }
 );
@@ -89,25 +95,25 @@ const onMessage = (obj: {
         whitePlayer = obj.d.players[0];
         blackPlayer = obj.d.players[1];
       }
-      playerData += `{blue-fg}${
+      lightPlayerBox.setContent(`{blue-fg}${
         whitePlayer
           ? whitePlayer.user.name + 
             ' {yellow-fg}[{red-fg}' + (whitePlayer.user.title||'untitled') + '{/white-fg}] ' + 
-            ' {/yellow-fg}({green-fg}' + whitePlayer.rating + '{/green-fg})'
+            '{/yellow-fg}({green-fg}' + whitePlayer.rating + '{/green-fg})'
           : 'White'
-      }: {magenta-fg}${obj.d.wc}{/magenta-fg}s\n`;
-      playerData += `{blue-fg}${
+      }: {magenta-fg}${obj.d.wc}{/magenta-fg}s\n`);
+      darkPlayerBox.setContent(`{blue-fg}${
         blackPlayer
           ? blackPlayer.user.name + 
             ' {yellow-fg}[{red-fg}' + (blackPlayer.user.title||'untitled') + '{/red-fg}] ' + 
             ' {/yellow-fg}({green-fg}' + blackPlayer.rating + '{/green-fg})'
           : 'Black'
-        }: {magenta-fg}${obj.d.bc}{/magenta-fg}s\n`;
+        }: {magenta-fg}${obj.d.bc}{/magenta-fg}s\n`);
       break;
     default: 
       log.log(`{red-fg}Unknown response type: {yellow-fg}${obj.t}`);
   }
-  playerData && playersBox.setContent(playerData);
+  // playerData && playersBox.setContent(playerData);
   screen.render();
 }
 const onComplete = () => {
