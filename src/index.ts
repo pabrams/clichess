@@ -99,18 +99,20 @@ const onMessage = (obj: {
       let playerContent = `{blue-fg}${
         blackPlayer
           ? blackPlayer.user.name + 
-            ' {yellow-fg}[{red-fg}' + (blackPlayer.user.title||'untitled') + '{/red-fg}] ' + 
-            ' {green-fg}' + blackPlayer.rating + '{/green-fg}'
+            '{yellow-fg}[{red-fg}' + (blackPlayer.user.title||'untitled') + '{/red-fg}] ' + 
+            '{green-fg}' + blackPlayer.rating + '{/green-fg}'
           : 'Black'
       }\n`;
       // add white's clock count to board content
-      playerContent +=`{yellow-fg}${obj.d.wc}s\n`;
+      playerContent +=`\n{yellow-fg}${obj.d.bc}s\n`;
 
       let boardContent = "\n";
       boardContent += mapChessAscii(chess.ascii());
-      boardContent += "\n";
       boardBox.setContent(boardContent);
-
+      playerContent += '\n\n\n\n\n\n';
+      // add White's's clock count to board content
+      playerContent +=`{yellow-fg}${obj.d.wc}s\n`;
+      playerContent += '\n';
       playerContent += `{blue-fg}${
         whitePlayer
           ? whitePlayer.user.name + 
@@ -118,8 +120,6 @@ const onMessage = (obj: {
             '{/yellow-fg}{green-fg}' + whitePlayer.rating + '{/green-fg}'
           : 'White'
       }\n`;
-      // add black's clock count to board content
-      playerContent +=`{yellow-fg}${obj.d.bc}s\n`;
       playersBox.setContent(playerContent);
       break;
     default: 
