@@ -6,91 +6,14 @@ import * as blessed from 'blessed';
 import * as contrib from 'blessed-contrib';
 import { Chess } from 'chess.js';
 import { readStream } from './util';
-import fs from 'fs';
+import { mapChessAscii } from './Board';
 
 const headers = { Authorization: 'Bearer ' + process.env.lichessToken };
-const config = JSON.parse(fs.readFileSync('config.json').toString());
 
 interface Player {
   color: string;
   user: { name: string, title: string, id: string };
   rating: number
-}
-
-const isLowerCase = (char: string) => {
-  return char.toString() === char.toLowerCase();
-}
-
-const charIsOnBoard = (char: string) => {
-    return char === 'K' 
-      || char === 'k'
-      || char === 'Q'
-      || char === 'q'
-      || char === 'R'
-      || char === 'r'
-      || char === 'B'
-      || char === 'b'
-      || char === 'N'
-      || char === 'n'
-      || char === 'P'
-      || char === 'p'
-      || char === '.'
-      || char === '♚'
-      || char === '♛'
-      || char === '♜'
-      || char === '♝'
-      || char === '♞'
-      || char === '♟'
-}
-
-const replaceLetterWithColoredSymbol = (letter: string, whiteSquare: boolean) => {
-  let result = letter;
-  let prefix = "";
-
-  prefix += (
-    whiteSquare ? 
-      config.board.whiteSquareColor :
-      config.board.darkSquareColor
-  );
-
-  prefix += (
-    isLowerCase(letter) ?
-      config.board.darkPieceColor :
-      config.board.whitePieceColor
-  );
-  
-  if (letter.toUpperCase() === 'K') result = `${prefix}♚`;
-  if (letter.toUpperCase() === 'Q') result = `${prefix}♛`;
-  if (letter.toUpperCase() === 'R') result = `${prefix}♜`;
-  if (letter.toUpperCase() === 'B') result = `${prefix}♝`;
-  if (letter.toUpperCase() === 'N') result = `${prefix}♞`;
-  if (letter.toUpperCase() === 'P') result = `${prefix}♟`;
-  if (letter.toUpperCase() === '.') result = `${prefix}.`;
-  return result;
-}
-
-const mapChessAscii = (ascii: string) => {
-  ascii =  ascii.replaceAll(' ', '');
-  ascii =  ascii.replaceAll('+------------------------+', ' +--------+');
-  let coloredSquares = "";
-  let chars = -1;
-  let whiteSquare = false;
-
-  for (const asciiChar of ascii) {
-    if (charIsOnBoard(asciiChar)){
-      chars++;
-      whiteSquare = (chars %2) == 1;
-      if (Math.floor(chars / 8) % 2 !== 0){
-        whiteSquare = !whiteSquare;
-      }
-      let square = replaceLetterWithColoredSymbol(asciiChar, whiteSquare);
-      coloredSquares += square;
-    }
-    else{
-      coloredSquares += `{black-bg}{white-fg}${asciiChar}`;
-    }
-  }
-  return coloredSquares;
 }
 
 let screen = blessed.screen();
