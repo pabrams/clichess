@@ -60,7 +60,6 @@ const replaceLetterWithSymbol = (letter: string, whiteSquare: boolean) => {
       config.board.whitePieceColor
   );
   
-  
   if (letter.toUpperCase() === 'K') result = `${prefix}♚`;
   if (letter.toUpperCase() === 'Q') result = `${prefix}♛`;
   if (letter.toUpperCase() === 'R') result = `${prefix}♜`;
