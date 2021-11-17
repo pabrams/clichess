@@ -18,23 +18,11 @@ interface Player {
   rating: number
 }
 
+const isLowerCase = (char: string) => {
+  return char.toString() === char.toLowerCase();
+}
+
 const charIsOnBoard = (char: string) => {
-  if (config.board.useChessSymbols){
-    return char === '♚'
-      || char === '♔'
-      || char === '♛'
-      || char === '♕'
-      || char === '♜'
-      || char === '♖'
-      || char === '♝'
-      || char === '♗'
-      || char === '♘'
-      || char === '♞'
-      || char === '♟'
-      || char === '♙'
-      || char === '.'
-  }
-  else {
     return char === 'K' 
       || char === 'k'
       || char === 'Q'
@@ -47,58 +35,61 @@ const charIsOnBoard = (char: string) => {
       || char === 'n'
       || char === 'P'
       || char === 'p'
-  }
+      || char === '.'
+      || char === '♚'
+      || char === '♛'
+      || char === '♜'
+      || char === '♝'
+      || char === '♞'
+      || char === '♟'
+}
+
+const replaceLetterWithSymbol = (letter: string, whiteSquare: boolean) => {
+  let result = letter;
+  let prefix = "";
+
+  prefix += (
+    whiteSquare ? 
+      config.board.whiteSquareColor :
+      config.board.darkSquareColor
+  );
+
+  prefix += (
+    isLowerCase(letter) ?
+      config.board.darkPieceColor :
+      config.board.whitePieceColor
+  );
+  
+  
+  if (letter.toUpperCase() === 'K') result = `${prefix}♚`;
+  if (letter.toUpperCase() === 'Q') result = `${prefix}♛`;
+  if (letter.toUpperCase() === 'R') result = `${prefix}♜`;
+  if (letter.toUpperCase() === 'B') result = `${prefix}♝`;
+  if (letter.toUpperCase() === 'N') result = `${prefix}♞`;
+  if (letter.toUpperCase() === 'P') result = `${prefix}♟`;
+  if (letter.toUpperCase() === '.') result = `${prefix}.`;
+  return result;
 }
 
 const mapChessAscii = (ascii: string) => {
   ascii =  ascii.replaceAll(' ', '');
   ascii =  ascii.replaceAll('+------------------------+', ' +--------+');
-
-  if (config.board.useChessSymbols){
-    ascii = ascii    
-      .replace('k', '♚')
-      .replace('K', '♚')
-      .replaceAll('Q', '♛')
-      .replaceAll('q', '♕')
-      .replaceAll('R', '♜')
-      .replaceAll('r', '♖')
-      .replaceAll('B', '♝')
-      .replaceAll('b', '♗')
-      .replaceAll('N', '♘')
-      .replaceAll('n', '♞')
-      .replaceAll('P', '♟')
-      .replaceAll('p', '♙')
-  }
   let coloredSquares = "";
   let chars = -1;
   let whiteSquare = false;
-  ascii = ascii.replace('a♗cdefgh', '  abcdefgh');
-  if (!config.board.colorSquares){
-    coloredSquares = ascii;
-  }
-  else {
-    for (const asciiChar of ascii) {
-      if (charIsOnBoard(asciiChar)){
-        chars++;
-        // console.log(chars, chars%2, Math.floor(chars / 8) %2);
-        if (chars % 2 == 0){
-          whiteSquare = true;
-        }else{
-          whiteSquare = false;
-        }
-        if (Math.floor(chars / 8) % 2 !== 0){
-          whiteSquare = !whiteSquare;
-        }
 
-        if (whiteSquare){
-          coloredSquares += `${config.board.whiteSquare}${asciiChar}`;
-        }else{
-          coloredSquares += `${config.board.darkSquare}${asciiChar}`;
-        }
+  for (const asciiChar of ascii) {
+    if (charIsOnBoard(asciiChar)){
+      chars++;
+      whiteSquare = (chars %2) == 1;
+      if (Math.floor(chars / 8) % 2 !== 0){
+        whiteSquare = !whiteSquare;
       }
-      else{
-        coloredSquares += `{black-bg}{white-fg}${asciiChar}`;
-      }
+      let square = replaceLetterWithSymbol(asciiChar, whiteSquare);
+      coloredSquares += square;
+    }
+    else{
+      coloredSquares += `{black-bg}{white-fg}${asciiChar}`;
     }
   }
   return coloredSquares;
@@ -149,13 +140,13 @@ const onMessage = (obj: {
 }) => {
   let fenLoaded = false;
   let playerData = "";
-  let clockData = "";
+  // let clockData = "";
   switch (obj.t){
     case 'featured': 
       // fall through...
     case 'fen':
       let fen = obj.d.fen.trim();
-      // Add missing information to the FEN received from lichess.org,
+      // HACK: Add missing information to the FEN received from lichess.org,
       // which is not actually a valid FEN.
       const lastFenChar = fen.charAt(fen.length - 1);
       if (lastFenChar === 'w' || lastFenChar === 'b') {
@@ -167,8 +158,8 @@ const onMessage = (obj: {
       let lastMove = obj.d.lm;
       if (lastMove){
         log.log(lastMove);
-        let moved = chess.move(lastMove);
-        if (!moved){
+        let moved = chess.move(lastMove, {sloppy: true});
+        if (!moved){  // HACK: if moving doesn't work, fall back to loadFen
           fenLoaded = chess.load(fen);
         }
       }
