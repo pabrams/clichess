@@ -20,31 +20,11 @@ let screen = blessed.screen();
 
 let grid = new contrib.grid({rows: 12, cols:12, screen: screen})
 
-let playersBox = grid.set(0,0,3,4, blessed.box, {
-  tags: true,
-  border: { type: "bg" },
-  hideBorder: true,
-  style: {
-    hideBorder: true
-  }
-});
+let playersBox = grid.set(0,0,3,4, blessed.box, { tags: true });
 
-let boardBox = grid.set(0,4,3,4, blessed.box, {
-  tags: true,
-  border: { type: "bg" },
-  hideBorder: true,
-  style: {
-    hideBorder: true
-  }
-});
+let boardBox = grid.set(0,4,3,4, blessed.box, { tags: true });
 
-let log = grid.set(
-  0,8,3,4, contrib.log, { 
-    label: 'log', tags: true ,
-    hideBorder: true,
-    style: {
-      hideBorder: true
-    }
+let log = grid.set(0,8,3,4, contrib.log, { label: 'log', tags: true
   }
 );
 
