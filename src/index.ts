@@ -27,15 +27,15 @@ let container = grid.set(0,0,8,10, blessed.box, {
 });
 
 let playersBox = grid.set(0,0,6,4, blessed.box, {
-// let playersBox = blessed.box({
   tags: true,
   border: { type: "bg" }
 });
+
 let boardBox = grid.set(0,4,6,4, blessed.box, {
-// let boardBox = blessed.box({
   tags: true,
   border: { type: "bg" }
 });
+
 container.append(playersBox);
 container.append(boardBox);
 let log = grid.set(
