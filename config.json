@@ -1,10 +1,17 @@
 {
   "board": {
-    "useChessSymbols": true,
     "whiteSquareColor": "{green-bg}",
     "darkSquareColor": "{#777777-bg}",
     "whitePieceColor": "{white-fg}",
-    "darkPieceColor": "{black-fg}",
-    "emptyPieceColor": "{black-fg}"
+    "blackPieceColor": "{black-fg}",
+    "P": "♟",
+    "N": "♞",
+    "B": "♝",
+    "R": "♜",
+    "Q": "♛",
+    "K": "♚",
+    "emptySquareChar": " ",
+    "emptyWhiteSquareFgColor": "{white-fg}",
+    "emptyBlackSquareFgColor": "{black-fg}"
   }
 }

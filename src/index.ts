@@ -6,7 +6,7 @@ import * as blessed from 'blessed';
 import * as contrib from 'blessed-contrib';
 import { Chess } from 'chess.js';
 import { readStream } from './util';
-import { mapChessAscii } from './Board';
+import * as AsciiBoard from './AsciiBoard'
 
 const headers = { Authorization: 'Bearer ' + process.env.lichessToken };
 
@@ -17,31 +17,39 @@ interface Player {
 }
 
 let screen = blessed.screen();
+
 let grid = new contrib.grid({rows: 12, cols:12, screen: screen})
 
-let boardBox = grid.set(0,0,3,3, blessed.box, {
+let container = grid.set(0,0,8,10, blessed.box, {
   label: "live feed",
   tags: true,
-  border: { type: "line",fg: "black" },
+  border: { type: "bg", bg: "black", fg: "black" },
 });
 
-let playersBox = grid.set(0,3,3,3, blessed.box, {
-  label: "players and clocks",
+let playersBox = grid.set(0,0,6,4, blessed.box, {
+// let playersBox = blessed.box({
   tags: true,
-  border: { type: "line",fg: "black" },
+  border: { type: "bg" }
 });
-
+let boardBox = grid.set(0,4,6,4, blessed.box, {
+// let boardBox = blessed.box({
+  tags: true,
+  border: { type: "bg" }
+});
+container.append(playersBox);
+container.append(boardBox);
 let log = grid.set(
-  0,9,4,3, contrib.log, { 
+  0,9,8,3, contrib.log, { 
     label: 'log', tags: true 
   }
 );
 
 let chess = new Chess();
-boardBox.setContent(mapChessAscii(chess.ascii()));
+boardBox.setContent(AsciiBoard.fromChessJsBoard(chess.board()));
 screen.key(["C-c", "escape", "q"], () => {
   return process.exit(0);
 });
+
 
 const stream = fetch('https://lichess.org/api/tv/feed');
 let whitePlayer: Player, blackPlayer: Player;
@@ -93,7 +101,7 @@ const onMessage = (obj: {
         whitePlayer = obj.d.players[0];
         blackPlayer = obj.d.players[1];
       }
-      let playerContent = `{blue-fg}${
+      let playerContent = `{right}{blue-fg}${
         blackPlayer
           ? blackPlayer.user.name + 
             '{yellow-fg}[{red-fg}' + (blackPlayer.user.title||'untitled') + '{/red-fg}] ' + 
@@ -101,16 +109,16 @@ const onMessage = (obj: {
           : 'Black'
       }\n`;
       // add white's clock count to board content
-      playerContent +=`\n{yellow-fg}${obj.d.bc}s\n`;
+      playerContent +=`{yellow-fg}${obj.d.bc}s\n`;
 
-      let boardContent = "\n";
-      boardContent += mapChessAscii(chess.ascii());
-
+      let boardContent = "\n{center}";
+      boardContent += AsciiBoard.fromChessJsBoard(chess.board());
       boardBox.setContent(boardContent);
-      playerContent += '\n\n\n\n\n\n';
+
+      playerContent += '\n\n\n\n';
       // add White's's clock count to board content
       playerContent +=`{yellow-fg}${obj.d.wc}s\n`;
-      playerContent += '\n';
+      // playerContent += '\n';
       playerContent += `{blue-fg}${
         whitePlayer
           ? whitePlayer.user.name + 
