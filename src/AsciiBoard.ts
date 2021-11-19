@@ -2,7 +2,7 @@ import { PieceType } from 'chess.js';
 
 import fs from 'fs';
 const config = JSON.parse(fs.readFileSync('config.json').toString());
-const isOdd = (x: number):boolean => x % 2 !== 0;
+const isEven = (x: number):boolean => x % 2 === 0;
 
 export const fromChessJsBoard = (board: 
     ({ type: PieceType; color: "b" | "w"; } | null)[][]
@@ -15,8 +15,8 @@ export const fromChessJsBoard = (board:
         boardAscii += "{black-bg}{white-fg}\n"
       }
 
-      // A square is white if the sum of its 0-based indices is odd
-      const whiteSquare = isOdd(row + col);
+      // A square is white if the sum of its 0-based indices is even
+      const whiteSquare = isEven(row + col);
 
       // first, add the square color 
       // code {white-bg} or {black-bg}}
