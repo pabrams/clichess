@@ -111,7 +111,6 @@ const processMove = (d: {
         logLine(fullTurnCount + ". " + moved?.san);
       }
     }
-
   }
 }
 
