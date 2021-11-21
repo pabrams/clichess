@@ -14,9 +14,8 @@ export class Player implements IPlayer{
   ) {}
 
   public dataForDisplay = (): string => {
-    const str = `{blue-fg}${this.user.name}{yellow-fg}[{red-fg}${this.user.title||'untitled'}
-      {/red-fg}]{green-fg}${this.rating}
-      {/green-fg}{/yellow-fg}{/blue-fg}`;
+    const str = `{blue-fg}${this.user.name}
+      \n{yellow-fg}[{red-fg}${this.user.title||'untitled'}{/red-fg}]({green-fg}${this.rating}{/green-fg}){/yellow-fg}{/blue-fg}\n`;
     return str;
   }
 }  

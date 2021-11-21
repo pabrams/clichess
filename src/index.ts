@@ -122,7 +122,7 @@ const setMetadata = (d: {
   wc?: number; 
   bc?: number; 
 }) => {
-  let playerContent = blackPlayer.dataForDisplay();
+  let playerContent = "{right}" + blackPlayer.dataForDisplay();
   playerContent +=`{yellow-fg}${d.bc}s\n`;
 
   playerContent += chess.getMessageData();
@@ -131,7 +131,7 @@ const setMetadata = (d: {
   boardContent += AsciiBoard.fromChessJsBoard(chess.board());
   boardBox.setContent(boardContent);
 
-  playerContent +=`{yellow-fg}${d.wc}s\n`;
+  playerContent +=`{right}{yellow-fg}${d.wc}s\n`;
   playerContent += whitePlayer.dataForDisplay();
   playersBox.setContent(playerContent);
 }
