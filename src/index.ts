@@ -4,12 +4,13 @@ dotenv.config();
 import fetch from 'cross-fetch';
 import * as blessed from 'blessed';
 import * as contrib from 'blessed-contrib';
-import { Chess, ChessInstance, Move, ShortMove, Square } from 'chess.js';
+// import { Chess, ChessInstance, Move, ShortMove, Square } from 'chess.js';
+import { Chess } from './Chess';
 import { readStream } from './util';
-import * as AsciiBoard from './AsciiBoard'
+import * as AsciiBoard from './AsciiBoard';
+import { Player } from './Player';
 
 const headers = { Authorization: 'Bearer ' + process.env.lichessToken };
-
 
 let screen = blessed.screen();
 let grid = new contrib.grid({rows: 12, cols:12, screen: screen})
@@ -31,12 +32,6 @@ const logLine = (text: string) => {
   logBox.setScrollPerc(100);
 };
 
-const log = (text: string) => {
-  let line = logBox.popLine();
-  logBox.pushLine(line + text);
-  logBox.setScrollPerc(100);
-};
-
 let chess = new Chess();
 boardBox.setContent(AsciiBoard.fromChessJsBoard(chess.board()));
 screen.key(["C-c", "escape", "q"], () => {
@@ -44,8 +39,7 @@ screen.key(["C-c", "escape", "q"], () => {
 });
 
 const stream = fetch('https://lichess.org/api/tv/feed');
-let whitePlayer = new Player();
-let  blackPlayer = new Player();
+let whitePlayer: Player, blackPlayer: Player;
 
 let fullTurnCount = 0;
 
@@ -83,33 +77,42 @@ stream
   .then(readStream(onMessage))
   .then(onComplete);
 
-const getMessageData = ():string => {
-  // Check for game-altering conditions
-  let message = '\n';
-  if (chess.in_checkmate()){
-    message += '{black-fg}{red-bg}CHECKMATE !!!{/red-bg}{/black-fg}'
+
+const processMove = (d: { 
+  fen: string; 
+  lm?: string | undefined; 
+  players?: Player[] | undefined;
+  orientation?: string | undefined; 
+  wc?: number | undefined; 
+  bc?: number | undefined; 
+}) => {
+  let fen = fixFen(d.fen);
+  if (d.players && d.players.length > 1){
+    whitePlayer = new Player(d.players[0].color, d.players[0].user, d.players[0].rating);
+    blackPlayer = new Player(d.players[1].color, d.players[1].user, d.players[1].rating);
   }
-  else if (chess.in_stalemate()){
-    message += '{black-fg}{#777777-bg}STALEMATE !!!{/#777777-bg}{/black-bg}'
+
+  let move = d.lm;
+  if (!move){
+    chess.load(fen);
   }
-  else if (chess.in_draw()){
-    message += '{black-fg}{#777777-bg}DRAW !!!{/#777777-bg}{/black-bg}'
+  else {
+    let moved = chess.makeMove(move);
+    if (!moved){
+      chess.load(fen);
+      logLine("loaded FEN: " + fen);
+    }
+    else{
+      if (moved.color === "b"){
+        logLine(".." + moved?.san);
+      }
+      else{
+        fullTurnCount += 1;
+        logLine(fullTurnCount + ". " + moved?.san);
+      }
+    }
+
   }
-  else if (chess.in_threefold_repetition()){
-    message += '{black-fg}{#777777-bg}THREEFOLD !!!{/#777777-bg}{/black-bg}'
-  }
-  else if (chess.insufficient_material()){
-    message += '{black-fg}{#777777-bg}INSUFFICIENT_MATERIAL !!!{/#777777-bg}{/black-bg}'
-  }
-  else if (chess.in_check()){
-    message += '{red-fg}Check!{/red-fg}';
-  }
-  
-  if (chess.game_over()){
-    message += "\n{yellow}GAME OVER{/yellow}"
-  }
-  log(message);
-  return message + '\n\n';
 }
 
 const setMetadata = (d: {
@@ -123,64 +126,15 @@ const setMetadata = (d: {
   let playerContent = blackPlayer.dataForDisplay();
   playerContent +=`{yellow-fg}${d.bc}s\n`;
 
-  playerContent += getMessageData();
+  playerContent += chess.getMessageData();
 
   let boardContent = "\n{center}";
   boardContent += AsciiBoard.fromChessJsBoard(chess.board());
   boardBox.setContent(boardContent);
 
   playerContent +=`{yellow-fg}${d.wc}s\n`;
-  playerContent += whitePlayer.dataForDisplay;
+  playerContent += whitePlayer.dataForDisplay();
   playersBox.setContent(playerContent);
-}
-
-const processMove = (d: { 
-  fen: string; 
-  lm?: string | undefined; 
-  players?: Player[] | undefined;
-  orientation?: string | undefined; 
-  wc?: number | undefined; 
-  bc?: number | undefined; 
-}) => {
-  let fen = fixFen(d.fen);
-  if (d.players && d.players.length > 1){
-    whitePlayer = d.players[0];
-    blackPlayer = d.players[1];
-  }
-
-  let move = d.lm;
-  let lastChessMove = null;
-  if (!move){
-    chess.load(fen);
-  }
-  else {
-    let from = move.substring(0,2);
-    let to = move.substring(2, 4);
-    let moves = chess.moves({verbose: true, square: from});
-    for (let i=0;i< moves.length;i++){
-      if (to === moves[i].to){
-        lastChessMove = moves[i];
-      }
-    }
-
-    if (!lastChessMove){
-      logLine("{red-fg}no lastChessMove found !!!{/red-fg} loading fen...");
-      chess.load(fen);
-    }
-    else{
-      let moved = chess.move(lastChessMove, {sloppy: true});
-      if (!moved){
-        throw new Error ("Illegal move: " + lastChessMove.san);
-      }
-      if (moved.color === "b"){
-        logLine(`... ${moved.san}`)
-      }
-      else{
-        fullTurnCount+=1;
-        logLine(`FT:${fullTurnCount}. ${moved.san}`);
-      }
-    }
-  }
 }
 
 const fixFen = (fen:string): string => {
