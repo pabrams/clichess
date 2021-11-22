@@ -12,7 +12,7 @@ From a command line, execute the following commands.
 - `git clone https://github.com/pabrams/clichess.git`
 - `cd clichess`
 - `npm install`
-- `npm run build` must complete without errors.
+- `npm start`
 
 ## Running, using your lichess account
 
