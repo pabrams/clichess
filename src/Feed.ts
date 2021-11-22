@@ -169,8 +169,6 @@ export class Feed {
     });
 
     const stream = fetch(this.feedUrl);
-    let whitePlayer: Player, blackPlayer: Player;
-
     this.fullTurnCount = 0;
 
     stream
