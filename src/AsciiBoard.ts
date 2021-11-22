@@ -15,11 +15,8 @@ export const fromChessJsBoard = (board:
         boardAscii += "{black-bg}{white-fg}\n"
       }
 
-      // A square is white if the sum of its 0-based indices is even
       const whiteSquare = isEven(row + col);
 
-      // first, add the square color 
-      // code {white-bg} or {black-bg}}
       boardAscii +=
         whiteSquare
         ? config.board["whiteSquareColor"]
