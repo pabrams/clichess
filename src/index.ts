@@ -6,7 +6,7 @@ const feed_Url = 'https://lichess.org/api/tv/feed';
 const prog = new Command();
 prog
   .version('0.0.1')
-  .description('command line client  to interact with lichess.org')
+  .description('command line client to lichess.org')
   .option('-n, --name <name>', 'your name', 'jsliang')
   .option('-d, --debug', 'output debug information')
   .command('feed')
