@@ -14,7 +14,6 @@ prog
   .action((options, command) => {
     const feed = new Feed(options, command, feed_Url);
     feed.go();
-
   });
 
 prog.parse(process.argv);
