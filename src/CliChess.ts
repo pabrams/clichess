@@ -109,7 +109,7 @@ prog
   })
 
 const genericFetch = (apiPath:string) => {
-  fetch(Api_Url + apiPath, { headers })
+  fetch(Api_Url + apiPath, { headers: headers })
   .then((response: { json: () => Promise<any>; }) => {
     response.json()
     .then((jsonResponse: any) => {
