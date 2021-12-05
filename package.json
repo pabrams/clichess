@@ -1,6 +1,6 @@
 {
+  "main": "dist/CliChess.js",
   "name": "clichess",
-  "main": "index.js",
   "license": "MIT",
   "dependencies": {
     "blessed": "^0.1.81",
@@ -12,8 +12,14 @@
     "replace-last": "^1.2.6"
   },
   "scripts": {
+    "clean": "rm -rf dist && rm -rf node_modules",
+    "cleanInstall": "npm run clean && npm i",
     "build": "tsc -p .",
-    "start": "npm run build && node dist/CliChess.js"
+    "cleanBuild": "npm run cleanInstall && npm run build",
+    "start": "node dist/CliChess.js",
+    "cleanStart": "npm run cleanBuild && npm start",
+    "postinstall": "npm run typings",
+    "typings": "typings install"
   },
   "devDependencies": {
     "@types/blessed": "^0.1.19",

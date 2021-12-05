@@ -1,5 +1,4 @@
 
-import fetch from 'cross-fetch';
 import * as Blessed from 'blessed';
 import BlessedContrib from 'blessed-contrib';
 import 'tslib';
@@ -9,6 +8,7 @@ import { Chess } from './Chess';
 import { readStream } from './util';
 import * as AsciiBoard from './AsciiBoard';
 import { Player } from './Player';
+import fetch from 'cross-fetch';
 
 export class Feed {
   protected whitePlayer: Player = new Player('w', {name:'name', title: 'title', id: 'id'}, 800);

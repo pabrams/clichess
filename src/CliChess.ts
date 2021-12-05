@@ -1,12 +1,19 @@
 import { Command } from 'commander';
-import { Feed } from './Feed'
+import { Feed } from './Feed';
 import fetch from 'cross-fetch';
+require('dotenv').config();
 
-const headers = { Authorization: 'Bearer ' + process.env.lichessToken };
+const headers = { 
+  Authorization: 'Bearer ' + process.env.lichessToken,
+  Scope:'identify,read,post,client'
+};
+
 const Api_Url = 'https://lichess.org/api';
+// const urlSuffix = '&scope="identify,read,post,client"';
 const feed_Url = Api_Url + '/tv/feed';
 const cloudEval_Url = Api_Url + '/cloud-eval';
 const prog = new Command();
+
 prog
   .version('0.0.1')
   .description('command line client to lichess.org');
@@ -20,8 +27,8 @@ prog
   )
   .action((fen, options, command) => {
     fetch(cloudEval_Url + '?' + fen)
-      .then((reply) => {
-        console.log('Analysis outcome: ', reply);
+      .then((response: { json: () => any; }) => {
+        console.log('Analysis outcome response: ', response.json());
       })
   });
 
@@ -29,9 +36,75 @@ prog
   .command('feed')
   .description('stream the current tv game from ' + feed_Url)
   .action((fen, options, command) => {
-      const feed = new Feed(options, command, feed_Url);
-      feed.go();
+    const feed = new Feed(options, command, feed_Url);
+    feed.go();
   });
+  
+prog
+  .command('pm')
+  .description('send a private message ')
+  .argument('username', 'user name to message')
+  .argument('message', 'message to send' )
+  .action((username:string, message:string, options, command) => {
+    console.log("Sending message '" + message + "' to '" + username + "'");
+    fetch('https://lichess.org/inbox/' + username, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify({text: message})
+    })
+    .then((response: { status: number; }) => {
+      console.log("response from sending pm", Promise.resolve(response));
+      if (response.status === 200) {
+        console.log("Message sent.");
+      }
+      else {
+        console.error(
+          " - the message wasn't sent; response is ",
+          Promise.resolve(response)
+        );
+      }
+    })
+  });
+
+prog
+  .command('myprofile')
+  .description('display information from your profile')
+  .action((options, command) => {
+    genericFetch ("/account");
+  });
+
+prog
+  .command('mypreferences')
+  .description('display information from your preferences')
+  .action((options, command) => {
+    genericFetch ("/account/preferences");
+  });
+
+prog
+  .command('generic-api-call')
+  .description('provide some parameters to make a generic api call')
+  .argument(
+    '-a, --apiPath', 
+    'the portion of the target URL starting after the api folder ....'
+  )
+  .action((options, command) => {
+    genericFetch (command.apiPath);
+  })
+
+const genericFetch = (apiPath:string) => {
+  fetch(Api_Url + apiPath, { headers })
+  .then((response: { json: () => Promise<any>; }) => {
+    response.json()
+    .then((jsonResponse: any) => {
+      console.log("jsonResponse", jsonResponse);
+    })
+    .catch((err: any) => {
+      console.log("error", err);
+    });
+  }).catch((err: any) => {
+    console.log("error", err);
+  });
+};
 
 prog
   .option('-d, --debug', 'output debug information');
