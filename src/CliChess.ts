@@ -2,22 +2,39 @@ import { Command } from 'commander';
 import { Feed } from './Feed';
 import fetch from 'cross-fetch';
 require('dotenv').config();
+import * as util from 'util';
 
 const headers = { 
-  Authorization: 'Bearer ' + process.env.lichessToken,
-  Scope:'identify,read,post,client'
+  'Authorization': 'Bearer ' + process.env.lichessToken
+};
+const pmHeaders = {
+  'Authorization': 'Bearer ' + process.env.pmScope
+};
+const puzzleHeaders = { 
+  'Authorization': 'Bearer ' + process.env.puzzleScope
 };
 
 const Api_Url = 'https://lichess.org/api';
-// const urlSuffix = '&scope="identify,read,post,client"';
+
 const feed_Url = Api_Url + '/tv/feed';
 const cloudEval_Url = Api_Url + '/cloud-eval';
+const puzzle_Url = Api_Url + '/user/puzzle-activity';
 const prog = new Command();
 
 prog
   .version('0.0.1')
   .description('command line client to lichess.org');
 
+prog
+  .command('puzzle')
+  .description('puzzles')
+  .action(() => {
+    fetch(puzzle_Url, {headers: puzzleHeaders})
+      .then(response => {
+        console.log(util.inspect(response, true, 20, true));
+      })
+  }) 
+   
 prog
   .command('analyze')
   .description('analyze the position given as FEN')

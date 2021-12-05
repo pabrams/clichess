@@ -17,6 +17,8 @@
     "build": "tsc -p .",
     "cleanBuild": "npm run cleanInstall && npm run build",
     "start": "node dist/CliChess.js",
+    "go": "npm run build && npm start",
+    "gopuz": "npm run build && npm start puzzle",
     "cleanStart": "npm run cleanBuild && npm start",
     "postinstall": "npm run typings",
     "typings": "typings install"
