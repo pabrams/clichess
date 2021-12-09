@@ -26,8 +26,8 @@ prog
   .description('command line client to lichess.org');
 
 prog
-  .command('puzzle')
-  .description('puzzles')
+  .command('puzzleActivity')
+  .description('puzzle activity')
   .action(() => {
     fetch(puzzle_Url, {headers: puzzleHeaders})
       .then(response => {
@@ -111,7 +111,7 @@ prog
 const genericFetch = (apiPath:string) => {
   fetch(Api_Url + apiPath, { headers: headers })
   .then((response: { json: () => Promise<any>; }) => {
-    response.json()
+    response.json()b
     .then((jsonResponse: any) => {
       console.log("jsonResponse", jsonResponse);
     })
