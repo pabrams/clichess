@@ -111,13 +111,10 @@ prog
 const genericFetch = (apiPath:string) => {
   fetch(Api_Url + apiPath, { headers: headers })
   .then((response: { json: () => Promise<any>; }) => {
-    response.json()b
+    response.json()
     .then((jsonResponse: any) => {
       console.log("jsonResponse", jsonResponse);
     })
-    .catch((err: any) => {
-      console.log("error", err);
-    });
   }).catch((err: any) => {
     console.log("error", err);
   });

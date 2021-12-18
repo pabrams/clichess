@@ -18,9 +18,7 @@
     "cleanBuild": "npm run cleanInstall && npm run build",
     "start": "node dist/CliChess.js",
     "go": "npm run build && npm start",
-    "cleanStart": "npm run cleanBuild && npm start",
-    "postinstall": "npm run typings",
-    "typings": "typings install"
+    "cleanStart": "npm run cleanBuild && npm start"
   },
   "devDependencies": {
     "@types/blessed": "^0.1.19",
