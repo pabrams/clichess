@@ -50,16 +50,10 @@ export class Chess{
       }
     }
 
-    // if (!lastChessMove){
-    //   logLine("{red-fg}no lastChessMove found !!!{/red-fg} loading fen...");
-    //   this.chess.load(fen);
-    // }
-    // else{
     if (lastChessMove){
-      return this.chess.move(lastChessMove, {sloppy: true});
+      const move = this.chess.move(lastChessMove, {sloppy: true});
+      return move;
     }
     return null;
-
-    // }
   }
 }

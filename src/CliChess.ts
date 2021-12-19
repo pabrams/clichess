@@ -3,6 +3,7 @@ import { Feed } from './Feed';
 import fetch from 'cross-fetch';
 require('dotenv').config();
 import * as util from 'util';
+import * as Tactics from './Tactics';
 
 const headers = { 
   'Authorization': 'Bearer ' + process.env.lichessToken
@@ -88,6 +89,13 @@ prog
   .description('display information from your profile')
   .action((options, command) => {
     genericFetch ("/account");
+  });
+
+prog
+  .command('tactics')
+  .description('run the tactics trainer')
+  .action((options, command) => {
+    Tactics.nextPuzzle();
   });
 
 prog

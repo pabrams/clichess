@@ -32,7 +32,6 @@ export class Feed {
     this.chess = new Chess();
     this.screen = Blessed.screen();
     this.grid = new BlessedContrib.grid({rows: 12, cols:12, screen: this.screen});
-
     this.playersBox = this.grid.set(0,0,4,4, Blessed.box, { tags: true });
     this.boardBox = this.grid.set(0,4,4,4, Blessed.box, { tags: true });
     this.logBox = this.grid.set(0,8,4,4, Blessed.box, { 
@@ -130,7 +129,6 @@ export class Feed {
     }
     return fen;
   }
-
 
   protected onMessage = (obj: {
     t: string; 
