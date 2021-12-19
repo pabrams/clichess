@@ -1,0 +1,17 @@
+{
+  "board": {
+    "whiteSquareColor": "{green-bg}",
+    "darkSquareColor": "{#777777-bg}",
+    "whitePieceColor": "{white-fg}",
+    "blackPieceColor": "{black-fg}",
+    "P": "♟",
+    "N": "♞",
+    "B": "♝",
+    "R": "♜",
+    "Q": "♛",
+    "K": "♚",
+    "emptySquareChar": " ",
+    "emptyWhiteSquareFgColor": "{white-fg}",
+    "emptyBlackSquareFgColor": "{black-fg}"
+  }
+}
