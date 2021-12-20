@@ -50,6 +50,7 @@ const logBox = grid.set(0,8,4,4, Blessed.box, {
 const form = grid.set(0, 4, 4, 4, Blessed.form, {
   parent: screen, 
   label: 'Move?',
+  top: 'center',
   left: 'center', 
   fg: 'yellow',
   keys: true,
@@ -66,10 +67,12 @@ const yourMove = Blessed.textbox({
   width: '80%',
   height: 3,
   top: 1,
+  left: 1,
   keys: true,
   mouse: true,
   input: true,
   inputOnFocus: true,
+  tags: true,
   style: {
     fg: 'white',
     bg: 'black'
@@ -94,14 +97,31 @@ const submit = Blessed.button({
   border: {
     type: 'line'
   },
-  hover: {
-    bg: 'red',
-    fg: 'blue'
+  style: {
+    border: {
+      type: 'line',
+      fg: 'green'
+    },
+    hover: {
+      bg: 'red',
+      fg: 'blue'
+    },
   },
   left: 1,
   bottom: 1,
+  height: 3,
   name: 'submit',
   content: 'move'
+});
+const statusBox = grid.set(4,0,2,12, Blessed.box, {
+  label: 'status',
+  tags: true ,
+  alwaysScroll: true,
+  scrollable: true,
+  scrollbar: {
+    ch: ' ',
+    bg: 'red'
+  }
 });
 let chess:Chess = new Chess();
 const puzzles: IPuzzle[] = [];
@@ -149,6 +169,7 @@ export const readTacticsCsv = () => {
           '\r\n' + AsciiBoard.fromChessJsBoard(chess.board()));
         correctMoves = puzzle.Moves.split(' ');
         setTimeout(letComputerMakeMove, 3000);
+        statusLine("Waiting for " + sideToMove + " to move...");
         screen.render();
     });
 }
@@ -157,8 +178,10 @@ const letComputerMakeMove = () => {
   boardBox.setContent(AsciiBoard.fromChessJsBoard(chess.board()));
   if (fullMove){
     moveCounter++;
-    logLine(movePrefix(sideToMove(puzzles[0])) +  fullMove.san);
+    logLine(movePrefix(sideToMove(puzzles[0])) + fullMove.san);
     boardBox.setContent(AsciiBoard.fromChessJsBoard(chess.board()));
+    screen.focusPush(yourMove);
+    statusLine("Your move.")
     screen.render();
   }
 }
@@ -166,10 +189,11 @@ form.on('submit', function (data: any) {
   if (data.yourMove === correctMoves[moveCounter]){
     const myFullMove = chess.makeMove(correctMoves[moveCounter]);
     if (myFullMove){
+      statusLine(`{red-fg}Correct!`);
       moveCounter++;
       logLine(moveCounter + ". " + myFullMove.san);
       if (moveCounter >= correctMoves.length - 1){
-        console.log('YOU WIN!');
+        statusLine(`{blue-fg}YOU WIN!`);
       }
       else {
         letComputerMakeMove();
@@ -177,6 +201,11 @@ form.on('submit', function (data: any) {
       screen.render();
     }
 
+  }
+  else {
+    statusLine("{red-fg}" + data.yourMove + " is incorrect. Try again.")
+    screen.focusPush(yourMove);
+    
   }
 });
 export const nextPuzzle = () => {
@@ -191,4 +220,8 @@ screen.key(['escape', 'q', 'C-c'], function(ch, key) {
 const logLine = (text: string) => {
   logBox.pushLine(text);
   logBox.setScrollPerc(100);
+};
+const statusLine = (text: string) => {
+  statusBox.pushLine(text);
+  statusBox.setScrollPerc(100);
 };
