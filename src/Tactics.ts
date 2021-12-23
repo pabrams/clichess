@@ -1,3 +1,6 @@
+/* eslint-disable prefer-destructuring */
+/* eslint-disable new-cap */
+export
 import * as fs from 'fs';
 import { parse } from 'fast-csv';
 import * as path from 'path';
@@ -37,17 +40,20 @@ class Puzzle implements IPuzzle {
 
   GameUrl = '';
 }
+
 let toMove = 'WHITE';
 const screen = Blessed.screen({
   smartCSR: true,
   title: 'CliChess',
 });
+
 const grid = new BlessedContrib.grid({ rows: 12, cols: 12, screen });
 const boardBox = grid.set(0, 0, 4, 4, Blessed.box, { tags: true });
 const colorToPlayBox = Blessed.text({
   tags: true,
   content: toMove,
 });
+
 const logBox = grid.set(0, 8, 4, 4, Blessed.box, {
   label: 'log',
   tags: true,
@@ -73,6 +79,7 @@ const form = grid.set(0, 4, 4, 4, Blessed.form, {
   bg: 'black',
   autoNext: true,
 });
+
 const yourMove = Blessed.textbox({
   parent: form,
   name: 'yourMove',
@@ -96,6 +103,7 @@ const yourMove = Blessed.textbox({
     fg: 'blue',
   },
 });
+
 const submit = Blessed.button({
   parent: form,
   mouse: true,
@@ -125,6 +133,12 @@ const submit = Blessed.button({
   name: 'submit',
   content: 'submit',
 });
+
+const logLine = (text: string) => {
+  logBox.pushLine(text);
+  logBox.setScrollPerc(100);
+};
+
 const statusBox = grid.set(4, 0, 2, 12, Blessed.box, {
   label: 'status',
   tags: true,
@@ -135,16 +149,22 @@ const statusBox = grid.set(4, 0, 2, 12, Blessed.box, {
     bg: 'red',
   },
 });
+
+const statusLine = (text: string) => {
+  statusBox.pushLine(text);
+  statusBox.setScrollPerc(100);
+};
+
 const chess:Chess = new Chess();
 const puzzles: IPuzzle[] = [];
 let correctMoves: string[] = [];
 let moveCounter = 0;
 const puzzleIndex = 0;
-
 const sideToMove = (puzzle: IPuzzle) => {
   const blackOrWhite = (puzzle.FEN.split(' ')[1] === 'b') ? 'BLACK' : 'WHITE';
   return blackOrWhite;
 };
+
 const toggleSideToMove = () => {
   if (toMove === 'BLACK') {
     toMove = 'WHITE';
@@ -154,14 +174,13 @@ const toggleSideToMove = () => {
     colorToPlayBox.setContent('BLACK');
   }
 };
-const blackToMove = () => toMove === 'BLACK';
 
 /**
  * When it's BLACK to move, return prefix "...", otherwise return like "1. "
- * @param sideToMove
+ * @param playerToMove
  * @returns
  */
-const movePrefix = (sideToMove: string) => (sideToMove === 'BLACK' ? ' ..' : `${moveCounter / 2}. `);
+const movePrefix = (playerToMove: string) => (playerToMove === 'BLACK' ? ' ..' : `${moveCounter / 2}. `);
 
 /**
  * PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl
@@ -171,19 +190,19 @@ export const readTacticsCsv = () => {
     .pipe(parse({ headers: false, maxRows: 5 }))
     .on('error', (error: any) => console.error(error))
     .on('data', (row: any) => {
-      const puzzle = new Puzzle();
-      puzzle.PuzzleId = row[0];
-      puzzle.FEN = row[1];
-      puzzle.Moves = row[2];
-      puzzle.Rating = row[3];
-      puzzle.RatingDeviation = row[4];
-      puzzle.Popularity = row[5]; e;
-      puzzle.NbPlays = row[6];
-      puzzle.Themes = row[7];
-      puzzle.GameUrl = row[8];
-      puzzles.push(puzzle);
+      const puz = new Puzzle();
+      puz.PuzzleId = row[0];
+      puz.FEN = row[1];
+      puz.Moves = row[2];
+      puz.Rating = row[3];
+      puz.RatingDeviation = row[4];
+      puz.Popularity = row[5];
+      puz.NbPlays = row[6];
+      puz.Themes = row[7];
+      puz.GameUrl = row[8];
+      puzzles.push(puz);
     })
-    .on('end', (rowCount: any) => {
+    .on('end', () => {
       const puzzle = puzzles[puzzleIndex];
       chess.load(puzzle.FEN);
       boardBox.setContent(
@@ -242,11 +261,4 @@ submit.on('press', () => {
   form.submit();
 });
 screen.key(['escape', 'q', 'C-c'], (ch, key) => process.exit(0));
-const logLine = (text: string) => {
-  logBox.pushLine(text);
-  logBox.setScrollPerc(100);
-};
-const statusLine = (text: string) => {
-  statusBox.pushLine(text);
-  statusBox.setScrollPerc(100);
-};
+
