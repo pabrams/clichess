@@ -264,5 +264,4 @@ export const nextPuzzle = () => {
 submit.on('press', () => {
   form.submit();
 });
-screen.key(['escape', 'q', 'C-c'], (ch, key) => process.exit(0));
-
+screen.key(['escape', 'q', 'C-c'], () => process.exit(0));
