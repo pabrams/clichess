@@ -29,13 +29,17 @@ class Puzzle implements IPuzzle {
   Themes = '';
   GameUrl = '';
 }
-
+let toMove = "WHITE";
 const screen = Blessed.screen({
   smartCSR: true,
   title: 'CliChess'
 });
 const grid = new BlessedContrib.grid({rows: 12, cols:12, screen: screen});;
 const boardBox = grid.set(0, 0, 4, 4, Blessed.box, { tags: true });
+const colorToPlayBox = Blessed.text({
+  tags: true,
+  content: toMove,
+});
 const logBox = grid.set(0,8,4,4, Blessed.box, {
   label: 'log',
   tags: true ,
@@ -103,7 +107,7 @@ const submit = Blessed.button({
       fg: 'green'
     },
     hover: {
-      bg: 'red',
+      bg: 'darkgreen',
       fg: 'blue'
     },
   },
@@ -111,7 +115,7 @@ const submit = Blessed.button({
   bottom: 1,
   height: 3,
   name: 'submit',
-  content: 'move'
+  content: 'submit'
 });
 const statusBox = grid.set(4,0,2,12, Blessed.box, {
   label: 'status',
@@ -130,8 +134,20 @@ let moveCounter = 0;
 let puzzleIndex = 0;
 
 const sideToMove = (puzzle: IPuzzle) => {
-  return puzzle.FEN.split(' ')[1] === 'b' ? 'BLACK': 'WHITE';
+  const blackOrWhite = (puzzle.FEN.split(' ')[1] === 'b') ? 'BLACK': 'WHITE';
+  return blackOrWhite;
 }
+const toggleSideToMove = () => {
+  if (toMove === 'BLACK'){
+    toMove = 'WHITE';
+    colorToPlayBox.setContent('WHITE');
+  }
+  else{
+    toMove = 'BLACK'
+    colorToPlayBox.setContent('BLACK');
+  }
+}
+const blackToMove = () => toMove === 'BLACK';
 
 /**
  * When it's BLACK to move, return prefix "...", otherwise return like "1. "
@@ -139,7 +155,7 @@ const sideToMove = (puzzle: IPuzzle) => {
  * @returns 
  */
 const movePrefix = (sideToMove: string) => {
-  return sideToMove === 'BLACK' ? "..." : (moveCounter / 2) + ". ";
+  return sideToMove === 'BLACK' ? " .." : (moveCounter / 2) + ". ";
 }
 
 /**
@@ -156,7 +172,7 @@ export const readTacticsCsv = () => {
         puzzle.Moves = row[2];
         puzzle.Rating = row[3];
         puzzle.RatingDeviation = row[4];
-        puzzle.Popularity = row[5];
+        puzzle.Popularity = row[5];e
         puzzle.NbPlays = row[6];
         puzzle.Themes = row[7];
         puzzle.GameUrl = row[8];
@@ -169,49 +185,58 @@ export const readTacticsCsv = () => {
           '\r\n' + AsciiBoard.fromChessJsBoard(chess.board()));
         correctMoves = puzzle.Moves.split(' ');
         setTimeout(letComputerMakeMove, 3000);
-        statusLine("Waiting for " + sideToMove + " to move...");
+        toMove = sideToMove(puzzle);
+        statusLine("Waiting for " + toMove + " to move...");
         screen.render();
     });
 }
-const letComputerMakeMove = () => {
-  const fullMove = chess.makeMove(correctMoves[moveCounter]);
-  boardBox.setContent(AsciiBoard.fromChessJsBoard(chess.board()));
+const onEveryMove = (move: string, isPlayer: boolean) => {
+  const fullMove = chess.makeMove(move);  
   if (fullMove){
-    moveCounter++;
-    logLine(movePrefix(sideToMove(puzzles[0])) + fullMove.san);
+    const moveString = movePrefix(toMove) + fullMove.san
+    logLine(moveString);
+    
+    const movedStringPrefix = isPlayer ? "You played " : "Opponent played ";
+    statusLine(movedStringPrefix + moveString);
+
     boardBox.setContent(AsciiBoard.fromChessJsBoard(chess.board()));
     screen.focusPush(yourMove);
-    statusLine("Your move.")
-    screen.render();
+    toggleSideToMove();
+    moveCounter++;
+    if (!isPlayer){
+      statusLine("Your move...");
+    }
+    else{
+      statusLine(`{red-fg}Correct{yellow-fg}!{/yellow-fg}{/red-fg}`);
+    }
   }
+}
+const letComputerMakeMove = () => {
+  onEveryMove(correctMoves[moveCounter], false);
+  screen.render();
 }
 form.on('submit', function (data: any) {
   if (data.yourMove === correctMoves[moveCounter]){
-    const myFullMove = chess.makeMove(correctMoves[moveCounter]);
-    if (myFullMove){
-      statusLine(`{red-fg}Correct!`);
-      moveCounter++;
-      logLine(moveCounter + ". " + myFullMove.san);
-      if (moveCounter >= correctMoves.length - 1){
-        statusLine(`{blue-fg}YOU WIN!`);
-      }
-      else {
-        letComputerMakeMove();
-      }
-      screen.render();
+    onEveryMove(correctMoves[moveCounter], true);
+    if (moveCounter >= correctMoves.length - 1){
+      statusLine(`{blue-fg}YOU WIN!`);
     }
+    else {
+      letComputerMakeMove();
+    }
+    screen.render();
 
   }
   else {
     statusLine("{red-fg}" + data.yourMove + " is incorrect. Try again.")
     screen.focusPush(yourMove);
-    
+    yourMove.clearValue();
   }
 });
 export const nextPuzzle = () => {
   readTacticsCsv();
 }
-submit.on('press', function() {
+submit.on('press', () => {
   form.submit();
 });
 screen.key(['escape', 'q', 'C-c'], function(ch, key) {
