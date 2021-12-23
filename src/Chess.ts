@@ -32,6 +32,19 @@ export class Chess {
     return `${message}\n\n`;
   };
 
+  public static fixFen = (fen:string): string => {
+    let aFen = fen.trim();
+    // HACK: Add missing information to the FEN received from lichess.org,
+    // which is not actually a valid FEN.
+    const lastFenChar = aFen.charAt(aFen.length - 1);
+    if (lastFenChar === 'w' || lastFenChar === 'b') {
+      aFen += ' KQkq - 0 1';
+    } else if (lastFenChar === 'R') {
+      aFen += ' w KQkq - 0 1';
+    }
+    return aFen;
+  };
+
   public load = (fen: string): void => {
     this.chess.load(fen);
   };

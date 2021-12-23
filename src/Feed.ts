@@ -14,18 +14,6 @@ import * as AsciiBoard from './AsciiBoard';
 import { Player } from './Player';
 
 dotenv.config();
-const fixFen = (fen:string): string => {
-  let aFen = fen.trim();
-  // HACK: Add missing information to the FEN received from lichess.org,
-  // which is not actually a valid FEN.
-  const lastFenChar = aFen.charAt(aFen.length - 1);
-  if (lastFenChar === 'w' || lastFenChar === 'b') {
-    aFen += ' KQkq - 0 1';
-  } else if (lastFenChar === 'R') {
-    aFen += ' w KQkq - 0 1';
-  }
-  return aFen;
-};
 
 export class Feed {
   protected whitePlayer: Player = new Player();
@@ -94,7 +82,7 @@ export class Feed {
     bc?: number | undefined;
   }) => {
     this.logDebug(`Processing move from: ${d}`);
-    const fen = fixFen(d.fen);
+    const fen = Chess.fixFen(d.fen);
     if (d.players && d.players.length > 1) {
       this.whitePlayer = new Player();
       this.blackPlayer = new Player();
