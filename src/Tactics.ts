@@ -1,6 +1,7 @@
+/* eslint-disable import/extensions */
+/* eslint-disable import/no-unresolved */
 /* eslint-disable prefer-destructuring */
 /* eslint-disable new-cap */
-export
 import * as fs from 'fs';
 import { parse } from 'fast-csv';
 import * as path from 'path';
@@ -182,13 +183,39 @@ const toggleSideToMove = () => {
  */
 const movePrefix = (playerToMove: string) => (playerToMove === 'BLACK' ? ' ..' : `${moveCounter / 2}. `);
 
+const onEveryMove = (move: string, isPlayer: boolean) => {
+  const fullMove = chess.makeMove(move);
+  if (fullMove) {
+    const moveString = movePrefix(toMove) + fullMove.san;
+    logLine(moveString);
+
+    const movedStringPrefix = isPlayer ? 'You played ' : 'Opponent played ';
+    statusLine(movedStringPrefix + moveString);
+
+    boardBox.setContent(AsciiBoard.fromChessJsBoard(chess.board()));
+    screen.focusPush(yourMove);
+    toggleSideToMove();
+    moveCounter += 1;
+    if (!isPlayer) {
+      statusLine('Your move...');
+    } else {
+      statusLine('{red-fg}Correct{yellow-fg}!{/yellow-fg}{/red-fg}');
+    }
+  }
+};
+
+const letComputerMakeMove = () => {
+  onEveryMove(correctMoves[moveCounter], false);
+  screen.render();
+};
+
 /**
  * PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl
  */
 export const readTacticsCsv = () => {
   fs.createReadStream(path.resolve(__dirname, '../lichess_db_puzzle.csv'))
     .pipe(parse({ headers: false, maxRows: 5 }))
-    .on('error', (error: any) => console.error(error))
+    .on('error', (error: any) => { throw error; })
     .on('data', (row: any) => {
       const puz = new Puzzle();
       puz.PuzzleId = row[0];
@@ -215,30 +242,7 @@ export const readTacticsCsv = () => {
       screen.render();
     });
 };
-const onEveryMove = (move: string, isPlayer: boolean) => {
-  const fullMove = chess.makeMove(move);
-  if (fullMove) {
-    const moveString = movePrefix(toMove) + fullMove.san;
-    logLine(moveString);
 
-    const movedStringPrefix = isPlayer ? 'You played ' : 'Opponent played ';
-    statusLine(movedStringPrefix + moveString);
-
-    boardBox.setContent(AsciiBoard.fromChessJsBoard(chess.board()));
-    screen.focusPush(yourMove);
-    toggleSideToMove();
-    moveCounter++;
-    if (!isPlayer) {
-      statusLine('Your move...');
-    } else {
-      statusLine('{red-fg}Correct{yellow-fg}!{/yellow-fg}{/red-fg}');
-    }
-  }
-};
-const letComputerMakeMove = () => {
-  onEveryMove(correctMoves[moveCounter], false);
-  screen.render();
-};
 form.on('submit', (data: any) => {
   if (data.yourMove === correctMoves[moveCounter]) {
     onEveryMove(correctMoves[moveCounter], true);

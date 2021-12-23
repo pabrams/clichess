@@ -1,27 +1,55 @@
-
+/* eslint-disable import/extensions */
+/* eslint-disable import/no-unresolved */
+/* eslint-disable new-cap */
+/* eslint-disable import/prefer-default-export */
 import * as Blessed from 'blessed';
 import BlessedContrib from 'blessed-contrib';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import 'tslib';
 import * as dotenv from 'dotenv';
-dotenv.config();
+import fetch from 'cross-fetch';
 import { Chess } from './Chess';
 import { readStream } from './util';
 import * as AsciiBoard from './AsciiBoard';
 import { Player } from './Player';
-import fetch from 'cross-fetch';
+
+dotenv.config();
+const fixFen = (fen:string): string => {
+  let aFen = fen.trim();
+  // HACK: Add missing information to the FEN received from lichess.org,
+  // which is not actually a valid FEN.
+  const lastFenChar = aFen.charAt(aFen.length - 1);
+  if (lastFenChar === 'w' || lastFenChar === 'b') {
+    aFen += ' KQkq - 0 1';
+  } else if (lastFenChar === 'R') {
+    aFen += ' w KQkq - 0 1';
+  }
+  return aFen;
+};
 
 export class Feed {
-  protected whitePlayer: Player = new Player('w', {name:'name', title: 'title', id: 'id'}, 800);
-  protected blackPlayer: Player = new Player('w', {name:'name', title: 'title', id: 'id'}, 800);
+  protected whitePlayer: Player = new Player();
+
+  protected blackPlayer: Player = new Player();
+
   fullTurnCount: number;
+
   chess: Chess;
+
   screen;
+
   grid: BlessedContrib.grid;
+
   boardBox: Blessed.Widgets.BoxElement;
+
   logBox: Blessed.Widgets.BoxElement;
+
   playersBox: Blessed.Widgets.BoxElement;
+
   feedUrl: string;
+
   options: any;
+
   command: any;
 
   constructor(options: any, command: any, feedUrl: string) {
@@ -31,62 +59,19 @@ export class Feed {
     this.command = command;
     this.chess = new Chess();
     this.screen = Blessed.screen();
-    this.grid = new BlessedContrib.grid({rows: 12, cols:12, screen: this.screen});
-    this.playersBox = this.grid.set(0,0,4,4, Blessed.box, { tags: true });
-    this.boardBox = this.grid.set(0,4,4,4, Blessed.box, { tags: true });
-    this.logBox = this.grid.set(0,8,4,4, Blessed.box, { 
-      label: 'log', 
-      tags: true ,
+    this.grid = new BlessedContrib.grid({ rows: 12, cols: 12, screen: this.screen });
+    this.playersBox = this.grid.set(0, 0, 4, 4, Blessed.box, { tags: true });
+    this.boardBox = this.grid.set(0, 4, 4, 4, Blessed.box, { tags: true });
+    this.logBox = this.grid.set(0, 8, 4, 4, Blessed.box, {
+      label: 'log',
+      tags: true,
       alwaysScroll: true,
       scrollable: true,
       scrollbar: {
         ch: ' ',
-        bg: 'red'
-      }
+        bg: 'red',
+      },
     });
-  }
-
-  logDebug = (message: string, ...args:any) => {
-    if (this.options.debug){
-      console.log(message, args);
-    }
-  }
-
-  processMove = (d: { 
-    fen: string; 
-    lm?: string | undefined; 
-    players?: Player[] | undefined;
-    orientation?: string | undefined; 
-    wc?: number | undefined; 
-    bc?: number | undefined; 
-  }) => {
-    this.logDebug("Processing move from: ", d);
-    let fen = this.fixFen(d.fen);
-    if (d.players && d.players.length > 1){
-      this.whitePlayer = new Player(d.players[0].color, d.players[0].user, d.players[0].rating);
-      this.blackPlayer = new Player(d.players[1].color, d.players[1].user, d.players[1].rating);
-    }
-
-    let move = d.lm;
-    if (!move){
-      this.chess.load(fen);
-    }
-    else {
-      let moved = this.chess.makeMove(move);
-      if (!moved){
-        this.chess.load(fen);
-        this.logLine("loaded FEN: " + fen);
-      }
-      else{
-        if (moved.color === "b"){
-          this.logLine(".." + moved?.san);
-        }
-        else{
-          this.fullTurnCount += 1;
-          this.logLine(this.fullTurnCount + ". " + moved?.san);
-        }
-      }
-    }
   }
 
   public logLine = (text: string) => {
@@ -94,62 +79,86 @@ export class Feed {
     this.logBox.setScrollPerc(100);
   };
 
+  logDebug = (message: string) => {
+    if (this.options.debug) {
+      this.logLine(message);
+    }
+  };
+
+  processMove = (d: {
+    fen: string;
+    lm?: string | undefined;
+    players?: Player[] | undefined;
+    orientation?: string | undefined;
+    wc?: number | undefined;
+    bc?: number | undefined;
+  }) => {
+    this.logDebug(`Processing move from: ${d}`);
+    const fen = fixFen(d.fen);
+    if (d.players && d.players.length > 1) {
+      this.whitePlayer = new Player();
+      this.blackPlayer = new Player();
+    }
+
+    const move = d.lm;
+    if (!move) {
+      this.chess.load(fen);
+    } else {
+      const moved = this.chess.makeMove(move);
+      if (!moved) {
+        this.chess.load(fen);
+        this.logLine(`loaded FEN: ${fen}`);
+      } else if (moved.color === 'b') {
+        this.logLine(`..${moved?.san}`);
+      } else {
+        this.fullTurnCount += 1;
+        this.logLine(`${this.fullTurnCount}. ${moved?.san}`);
+      }
+    }
+  };
+
   protected setMetadata = (d: {
-    fen: string; 
-    lm?: string; 
+    fen: string;
+    lm?: string;
     players?: Player[];
     orientation?: string;
-    wc?: number; 
-    bc?: number; 
+    wc?: number;
+    bc?: number;
   }) => {
-    let playerContent = "{right}" + this.blackPlayer.dataForDisplay();
-    playerContent +=`{yellow-fg}${d.bc}s\n`;
+    let playerContent = `{right}${this.blackPlayer.dataForDisplay()}`;
+    playerContent += `{yellow-fg}${d.bc}s\n`;
 
     playerContent += this.chess.getMessageData();
 
-    let boardContent = "\n{center}";
+    let boardContent = '\n{center}';
     boardContent += AsciiBoard.fromChessJsBoard(this.chess.board());
     this.boardBox.setContent(boardContent);
 
-    playerContent +=`{right}{yellow-fg}${d.wc}s\n`;
+    playerContent += `{right}{yellow-fg}${d.wc}s\n`;
     playerContent += this.whitePlayer.dataForDisplay();
     this.playersBox.setContent(playerContent);
-  }
-
-  protected fixFen = (fen:string): string => {
-    fen = fen.trim();
-    // HACK: Add missing information to the FEN received from lichess.org,
-    // which is not actually a valid FEN.
-    const lastFenChar = fen.charAt(fen.length - 1);
-    if (lastFenChar === 'w' || lastFenChar === 'b') {
-      fen = fen + " KQkq - 0 1";
-    }
-    else if(lastFenChar === 'R') {
-      fen = fen + " w KQkq - 0 1";
-    }
-    return fen;
-  }
+  };
 
   protected onMessage = (obj: {
-    t: string; 
+    t: string;
     d: {
-      fen: string; 
-      lm?: string; 
+      fen: string;
+      lm?: string;
       players?: Player[];
       orientation?: string;
-      wc?: number; 
-      bc?: number; 
-    }; 
+      wc?: number;
+      bc?: number;
+    };
   }) => {
-    switch (obj.t){
-      case 'featured': 
+    switch (obj.t) {
+      case 'featured':
         this.fullTurnCount = 1;
         // fall through...
       case 'fen':
         this.processMove(obj.d);
         this.setMetadata(obj.d);
         break;
-      default: 
+      default:
         this.logLine(`{red-fg}Unknown response type: {yellow-fg}${obj.t}`);
     }
     this.screen.render();
@@ -162,9 +171,7 @@ export class Feed {
 
   public go = () => {
     this.boardBox.setContent(AsciiBoard.fromChessJsBoard(this.chess.board()));
-    this.screen.key(["C-c", "escape", "q"], () => {
-      return process.exit(0);
-    });
+    this.screen.key(['C-c', 'escape', 'q'], () => process.exit(0));
 
     const stream = fetch(this.feedUrl);
     this.fullTurnCount = 0;
@@ -172,5 +179,5 @@ export class Feed {
     stream
       .then(readStream(this.onMessage))
       .then(this.onComplete);
-  }
+  };
 }
