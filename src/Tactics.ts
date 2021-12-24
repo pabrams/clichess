@@ -100,7 +100,7 @@ const logLine = (text: string) => {
   logBox.setScrollPerc(100);
 };
 
-const statusBox = grid.set(4, 0, 2, 12, Blessed.box, {
+const statusBox = grid.set(4, 0, 4, 12, Blessed.box, {
   label: 'status',
   tags: true,
   alwaysScroll: true,
@@ -136,7 +136,7 @@ const movePrefix = (playerToMove: string) => (playerToMove === 'BLACK' ? ' ..' :
 const onEveryMove = (move: string, isPlayer: boolean) => {
   const fullMove = chess.makeMove(move);
   if (fullMove) {
-    
+
     const moveString = movePrefix(chess.toMove()) + fullMove.san;
     logLine(moveString);
 
