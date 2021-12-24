@@ -4,7 +4,7 @@ import BlessedContrib from 'blessed-contrib';
 import 'tslib';
 import * as dotenv from 'dotenv';
 import fetch from 'cross-fetch';
-import { Chess } from './Chess';
+import { ChessGame } from './Chess';
 import { readStream } from './util';
 import * as AsciiBoard from './AsciiBoard';
 import { Player } from './Player';
@@ -18,7 +18,7 @@ export class Feed {
 
   fullTurnCount: number;
 
-  chess: Chess;
+  chess: ChessGame;
 
   screen;
 
@@ -41,7 +41,7 @@ export class Feed {
     this.feedUrl = feedUrl;
     this.options = options;
     this.command = command;
-    this.chess = new Chess();
+    this.chess = new ChessGame();
     this.screen = Blessed.screen();
     this.grid = new BlessedContrib.grid({ rows: 12, cols: 12, screen: this.screen });
     this.playersBox = this.grid.set(0, 0, 4, 4, Blessed.box, { tags: true });
@@ -78,7 +78,7 @@ export class Feed {
     bc?: number | undefined;
   }) => {
     this.logDebug(`Processing move from: ${d}`);
-    const fen = Chess.fixFen(d.fen);
+    const fen = ChessGame.fixFen(d.fen);
     if (d.players && d.players.length > 1) {
       this.whitePlayer = new Player();
       this.blackPlayer = new Player();

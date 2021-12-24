@@ -4,7 +4,7 @@ import * as path from 'path';
 import * as Blessed from 'blessed';
 import BlessedContrib from 'blessed-contrib';
 import * as AsciiBoard from './AsciiBoard';
-import { Chess } from './Chess';
+import { ChessGame } from './Chess';
 
 interface IPuzzle{
   PuzzleId: string,
@@ -152,7 +152,7 @@ const statusLine = (text: string) => {
   statusBox.setScrollPerc(100);
 };
 
-const chess:Chess = new Chess();
+const chess:ChessGame = new ChessGame();
 const puzzles: IPuzzle[] = [];
 let correctMoves: string[] = [];
 let moveCounter = 0;

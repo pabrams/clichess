@@ -3,7 +3,7 @@
  */
 import * as ChessJs from 'chess.js';
 
-export class Chess {
+export class ChessGame {
   public chess;
 
   constructor() { this.chess = new ChessJs.Chess(); }
