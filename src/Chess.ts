@@ -5,9 +5,9 @@ import * as ChessJs from 'chess.js';
 
 export class ChessGame {
   public chess;
-
   constructor() { this.chess = new ChessJs.Chess(); }
 
+  public toMove = () => this.chess.turn();
   public getMessageData = ():string => {
     // Check for game-altering conditions
     let message = '\n';

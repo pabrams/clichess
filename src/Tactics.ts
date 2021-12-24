@@ -5,40 +5,8 @@ import * as Blessed from 'blessed';
 import BlessedContrib from 'blessed-contrib';
 import * as AsciiBoard from './AsciiBoard';
 import { ChessGame } from './Chess';
+import { Puzzle, IPuzzle } from './Puzzle';
 
-interface IPuzzle{
-  PuzzleId: string,
-  FEN: string,
-  Moves: string,
-  Rating: string,
-  RatingDeviation: string,
-  Popularity: string,
-  NbPlays: string,
-  Themes: string,
-  GameUrl: string
-}
-
-class Puzzle implements IPuzzle {
-  PuzzleId = '';
-
-  FEN = '';
-
-  Moves = '';
-
-  Rating = '';
-
-  RatingDeviation = '';
-
-  Popularity = '';
-
-  NbPlays = '';
-
-  Themes = '';
-
-  GameUrl = '';
-}
-
-let toMove = 'WHITE';
 const screen = Blessed.screen({
   smartCSR: true,
   title: 'CliChess',
@@ -46,10 +14,6 @@ const screen = Blessed.screen({
 
 const grid = new BlessedContrib.grid({ rows: 12, cols: 12, screen });
 const boardBox = grid.set(0, 0, 4, 4, Blessed.box, { tags: true });
-const colorToPlayBox = Blessed.text({
-  tags: true,
-  content: toMove,
-});
 
 const logBox = grid.set(0, 8, 4, 4, Blessed.box, {
   label: 'log',
@@ -162,16 +126,6 @@ const sideToMove = (puzzle: IPuzzle) => {
   return blackOrWhite;
 };
 
-const toggleSideToMove = () => {
-  if (toMove === 'BLACK') {
-    toMove = 'WHITE';
-    colorToPlayBox.setContent('WHITE');
-  } else {
-    toMove = 'BLACK';
-    colorToPlayBox.setContent('BLACK');
-  }
-};
-
 /**
  * When it's BLACK to move, return prefix "...", otherwise return like "1. "
  * @param playerToMove
@@ -182,7 +136,8 @@ const movePrefix = (playerToMove: string) => (playerToMove === 'BLACK' ? ' ..' :
 const onEveryMove = (move: string, isPlayer: boolean) => {
   const fullMove = chess.makeMove(move);
   if (fullMove) {
-    const moveString = movePrefix(toMove) + fullMove.san;
+    
+    const moveString = movePrefix(chess.toMove()) + fullMove.san;
     logLine(moveString);
 
     const movedStringPrefix = isPlayer ? 'You played ' : 'Opponent played ';
@@ -190,7 +145,6 @@ const onEveryMove = (move: string, isPlayer: boolean) => {
 
     boardBox.setContent(AsciiBoard.fromChessJsBoard(chess.board()));
     screen.focusPush(yourMove);
-    toggleSideToMove();
     moveCounter += 1;
     if (!isPlayer) {
       statusLine('Your move...');
@@ -233,8 +187,7 @@ export const readTacticsCsv = () => {
       );
       correctMoves = puzzle.Moves.split(' ');
       setTimeout(letComputerMakeMove, 3000);
-      toMove = sideToMove(puzzle);
-      statusLine(`Waiting for ${toMove} to move...`);
+      statusLine(`Waiting for ${chess.toMove()} to move...`);
       screen.render();
     });
 };
