@@ -255,8 +255,8 @@ form.on('submit', (data: any) => {
   } else {
     statusLine(`{red-fg}${data.yourMove} is incorrect. Try again.`);
     screen.focusPush(yourMove);
-    yourMove.clearValue();
   }
+  yourMove.clearValue();
 });
 export const nextPuzzle = () => {
   readTacticsCsv();
