@@ -1,7 +1,3 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable import/prefer-default-export */
-
 export const readStream = (
   processLine: (obj: any) => void,
 ) => (response: any) => {

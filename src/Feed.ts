@@ -1,7 +1,3 @@
-/* eslint-disable import/extensions */
-/* eslint-disable import/no-unresolved */
-/* eslint-disable new-cap */
-/* eslint-disable import/prefer-default-export */
 import * as Blessed from 'blessed';
 import BlessedContrib from 'blessed-contrib';
 // eslint-disable-next-line import/no-extraneous-dependencies

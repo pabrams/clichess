@@ -1,4 +1,3 @@
-/* eslint-disable import/prefer-default-export */
 /** *
  * Mostly just a wrapper for chess.js... mostly
  */

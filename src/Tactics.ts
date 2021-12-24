@@ -1,7 +1,3 @@
-/* eslint-disable import/extensions */
-/* eslint-disable import/no-unresolved */
-/* eslint-disable prefer-destructuring */
-/* eslint-disable new-cap */
 import * as fs from 'fs';
 import { parse } from 'fast-csv';
 import * as path from 'path';
