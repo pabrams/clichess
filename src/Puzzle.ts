@@ -97,6 +97,7 @@ export class Puzzle implements IPuzzle {
       this.computerMove(endOfGameCallback);
     } else {
       this.ui.statusLine(`{red-fg}${yourMove} is incorrect. Try again.`);
+      this.ui.yourMove.focus();
     }
   }
 
@@ -107,7 +108,6 @@ export class Puzzle implements IPuzzle {
         this.ui.logLine(msg);
         this.ui.statusLine(msg);
       }
-      this.ui.logLine("Loading next puzzle...");
       endOfGameCallback();
       return;
     }
