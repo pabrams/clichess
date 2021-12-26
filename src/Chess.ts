@@ -2,12 +2,17 @@
  * Mostly just a wrapper for chess.js... mostly
  */
 import * as ChessJs from 'chess.js';
+import { Move } from 'chess.js';
 
+type Square = ChessJs.Square;
 export class ChessGame {
-  public chess;
+  protected chess;
+ 
   constructor() { this.chess = new ChessJs.Chess(); }
-
+  public moves = () => this.chess.moves({verbose: true});
+  public movesFrom = (fr: string) => this.chess.moves({verbose: true, square: fr});
   public toMove = () => this.chess.turn();
+  public game_is_over = () => this.chess.game_over();
   public getMessageData = ():string => {
     // Check for game-altering conditions
     let message = '\n';
@@ -50,10 +55,10 @@ export class ChessGame {
 
   public board = () => this.chess.board();
 
-  public makeMove = (move: string): ChessJs.Move|null => {
+  public makeStringMove = (move: string): ChessJs.Move|null => {
     let lastChessMove = null;
     const from = move.substring(0, 2);
-    const to = move.substring(2, 4);
+    const to = move.substring(2);
     const moves = this.chess.moves({ verbose: true, square: from });
     for (let i = 0; i < moves.length; i++) {
       if (to === moves[i].to) {
@@ -67,4 +72,9 @@ export class ChessGame {
     }
     return null;
   };
+
+  public makeMove = (move: Move): ChessJs.Move|null => {
+    const lastMove = this.chess.move(move);
+    return lastMove;
+  }
 }

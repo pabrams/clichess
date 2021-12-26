@@ -2,7 +2,9 @@ import { Command } from 'commander';
 import fetch from 'cross-fetch';
 import * as util from 'util';
 import { Feed } from './Feed';
-import * as Tactics from './Tactics';
+import * as Tactics from './PuzzleDb';
+import { PuzzleDb } from './PuzzleDb';
+import { Ui } from './Ui';
 
 require('dotenv').config();
 
@@ -19,6 +21,8 @@ const feedUrl = `${ApiUrl}/tv/feed`;
 const cloudEvalUrl = `${ApiUrl}/cloud-eval`;
 const puzzleUrl = `${ApiUrl}/user/puzzle-activity`;
 const prog = new Command();
+
+const ui = new Ui;
 
 prog
   .version('0.0.1')
@@ -52,7 +56,7 @@ prog
   .command('feed')
   .description(`stream the current tv game from ${feedUrl}`)
   .action((fen, options, command) => {
-    const feed = new Feed(options, command, feedUrl);
+    const feed = new Feed(options, command, feedUrl, ui);
     feed.go();
   });
 
@@ -92,7 +96,7 @@ prog
   .command('tactics')
   .description('run the tactics trainer')
   .action((options, command) => {
-    Tactics.nextPuzzle();
+    (new PuzzleDb(ui)).readTacticsCsv();
   });
 
 prog

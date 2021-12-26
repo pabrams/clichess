@@ -4,7 +4,6 @@ import fs from 'fs';
 const config = JSON.parse(fs.readFileSync('config.json').toString());
 const isEven = (x: number):boolean => x % 2 === 0;
 
-// eslint-disable-next-line import/prefer-default-export
 export const fromChessJsBoard = (board:
     ({ type: PieceType; color: 'b' | 'w'; } | null)[][]) => {
   let boardAscii = '';
@@ -22,7 +21,6 @@ export const fromChessJsBoard = (board:
           : config.board.darkSquareColor;
 
       const piece = board[row][col];
-      // eslint-disable-next-line no-unused-expressions
       piece // is there a piece here?
         ? (boardAscii
           // add piece color and symbol

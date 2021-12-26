@@ -1,6 +1,3 @@
-import * as Blessed from 'blessed';
-import BlessedContrib from 'blessed-contrib';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import 'tslib';
 import * as dotenv from 'dotenv';
 import fetch from 'cross-fetch';
@@ -8,7 +5,7 @@ import { ChessGame } from './Chess';
 import { readStream } from './util';
 import * as AsciiBoard from './AsciiBoard';
 import { Player } from './Player';
-
+import { Ui } from './Ui';
 dotenv.config();
 
 export class Feed {
@@ -20,56 +17,24 @@ export class Feed {
 
   chess: ChessGame;
 
-  screen;
-
-  grid: BlessedContrib.grid;
-
-  boardBox: Blessed.Widgets.BoxElement;
-
-  logBox: Blessed.Widgets.BoxElement;
-
-  playersBox: Blessed.Widgets.BoxElement;
-
   feedUrl: string;
 
   options: any;
 
   command: any;
 
-  constructor(options: any, command: any, feedUrl: string) {
+  ui;
+
+  constructor(options: any, command: any, feedUrl: string, ui: Ui) {
     this.fullTurnCount = 0;
     this.feedUrl = feedUrl;
-    this.options = options;
     this.command = command;
     this.chess = new ChessGame();
-    this.screen = Blessed.screen();
-    this.grid = new BlessedContrib.grid({ rows: 12, cols: 12, screen: this.screen });
-    this.playersBox = this.grid.set(0, 0, 4, 4, Blessed.box, { tags: true });
-    this.boardBox = this.grid.set(0, 4, 4, 4, Blessed.box, { tags: true });
-    this.logBox = this.grid.set(0, 8, 4, 4, Blessed.box, {
-      label: 'log',
-      tags: true,
-      alwaysScroll: true,
-      scrollable: true,
-      scrollbar: {
-        ch: ' ',
-        bg: 'red',
-      },
-    });
+    this.ui = ui;
+    this.ui.useInput(false);
   }
 
-  public logLine = (text: string) => {
-    this.logBox.pushLine(text);
-    this.logBox.setScrollPerc(100);
-  };
-
-  logDebug = (message: string) => {
-    if (this.options.debug) {
-      this.logLine(message);
-    }
-  };
-
-  processMove = (d: {
+  protected processMove = (d: {
     fen: string;
     lm?: string | undefined;
     players?: Player[] | undefined;
@@ -77,7 +42,6 @@ export class Feed {
     wc?: number | undefined;
     bc?: number | undefined;
   }) => {
-    this.logDebug(`Processing move from: ${d}`);
     const fen = ChessGame.fixFen(d.fen);
     if (d.players && d.players.length > 1) {
       this.whitePlayer = new Player();
@@ -88,15 +52,15 @@ export class Feed {
     if (!move) {
       this.chess.load(fen);
     } else {
-      const moved = this.chess.makeMove(move);
+      const moved = this.chess.makeStringMove(move);
       if (!moved) {
         this.chess.load(fen);
-        this.logLine(`loaded FEN: ${fen}`);
+        this.ui.logLine(`loaded FEN: ${fen}`);
       } else if (moved.color === 'b') {
-        this.logLine(`..${moved?.san}`);
+        this.ui.logLine(`..${moved?.san}`);
       } else {
         this.fullTurnCount += 1;
-        this.logLine(`${this.fullTurnCount}. ${moved?.san}`);
+        this.ui.logLine(`${this.fullTurnCount}. ${moved?.san}`);
       }
     }
   };
@@ -116,11 +80,11 @@ export class Feed {
 
     let boardContent = '\n{center}';
     boardContent += AsciiBoard.fromChessJsBoard(this.chess.board());
-    this.boardBox.setContent(boardContent);
+    this.ui.boardBox.setContent(boardContent);
 
     playerContent += `{right}{yellow-fg}${d.wc}s\n`;
     playerContent += this.whitePlayer.dataForDisplay();
-    this.playersBox.setContent(playerContent);
+    this.ui.playersBox.setContent(playerContent);
   };
 
   protected onMessage = (obj: {
@@ -143,19 +107,19 @@ export class Feed {
         this.setMetadata(obj.d);
         break;
       default:
-        this.logLine(`{red-fg}Unknown response type: {yellow-fg}${obj.t}`);
+        this.ui.logLine(`{red-fg}Unknown response type: {yellow-fg}${obj.t}`);
     }
-    this.screen.render();
+    this.ui.screen.render();
   };
 
   protected onComplete = () => {
-    this.logLine('{yellow-fg}THE LIVE STREAM HAS ENDED');
-    this.screen.render();
+    this.ui.logLine('{yellow-fg}THE LIVE STREAM HAS ENDED');
+    this.ui.screen.render();
   };
 
   public go = () => {
-    this.boardBox.setContent(AsciiBoard.fromChessJsBoard(this.chess.board()));
-    this.screen.key(['C-c', 'escape', 'q'], () => process.exit(0));
+    this.ui.boardBox.setContent(AsciiBoard.fromChessJsBoard(this.chess.board()));
+    this.ui.screen.key(['C-c', 'escape', 'q'], () => process.exit(0));
 
     const stream = fetch(this.feedUrl);
     this.fullTurnCount = 0;
