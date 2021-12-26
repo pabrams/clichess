@@ -2,7 +2,7 @@ import 'tslib';
 import * as dotenv from 'dotenv';
 import fetch from 'cross-fetch';
 import { ChessGame } from './Chess';
-import { readStream } from './util';
+import { readStream } from './Util';
 import * as AsciiBoard from './AsciiBoard';
 import { Player } from './Player';
 import { Ui } from './Ui';
