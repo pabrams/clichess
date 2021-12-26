@@ -80,13 +80,12 @@ export class Puzzle implements IPuzzle {
     yourMove: string, 
     endOfGameCallback: () => void
   ) => {
-    this.ui.logLine(`yourMove: ${yourMove}`);
     const correctMove = this.correctMoveSequence()[0];
     // check that the input move matches the correct move's san 
     // or its fromTo string.
     if (
       correctMove && yourMove === correctMove.san
-      || 
+      ||
       (
         correctMove?.from === yourMove.substring(0, 2) as Square
         && correctMove?.to === yourMove.substring(2) as Square)
