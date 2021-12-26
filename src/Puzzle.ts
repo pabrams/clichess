@@ -102,10 +102,12 @@ export class Puzzle implements IPuzzle {
   }
 
   protected checkForEndOfGame = (endOfGameCallback: () => void) => {
-    if (this.chess.game_is_over()){
-      const msg = this.chess.getMessageData();
-      this.ui.logLine(msg);
-      this.ui.statusLine(msg);
+    if (this.correctMoveSequence().length === 0) {
+      if (this.chess.game_is_over()){
+        const msg = this.chess.getMessageData();
+        this.ui.logLine(msg);
+        this.ui.statusLine(msg);
+      }
       this.ui.logLine("Loading next puzzle...");
       endOfGameCallback();
       return;
