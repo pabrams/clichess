@@ -92,7 +92,6 @@ export class Puzzle implements IPuzzle {
     ) {
       this.doMove(correctMove, true); // increments currentMoveIndex
       this.checkForEndOfGame(endOfGameCallback);
-      this.ui.statusLine("Waiting for computer move");
       this.ui.screen.render();
       this.computerMove(endOfGameCallback);
     } else {
@@ -119,7 +118,6 @@ export class Puzzle implements IPuzzle {
     this.ui.boardBox.setContent(
       `\r\n${fromChessJsBoard(this.chess.board())}`,
     );
-      this.ui.statusLine(`Waiting for ${this.chess.toMove()} to move...`);
       this.computerMove(endOfGameCallback);
   }
 
