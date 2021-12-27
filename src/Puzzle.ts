@@ -57,6 +57,15 @@ export class Puzzle implements IPuzzle {
     });
   }
 
+  public startGame = (endOfGameCallback: () => void) => {
+    this.chess = new ChessGame();
+    this.chess.load(this.FEN);
+    this.ui.boardBox.setContent(
+      `\r\n${fromChessJsBoard(this.chess.board())}`,
+    );
+      this.computerMove(endOfGameCallback);
+  }
+
   // we already have the sequence of correct moves as 
   // space-separated string, from the Puzzle data,
   // so now translate that from string to Move[]
@@ -110,15 +119,6 @@ export class Puzzle implements IPuzzle {
       endOfGameCallback();
       return;
     }
-  }
-
-  public startGame = (endOfGameCallback: () => void) => {
-    this.chess = new ChessGame();
-    this.chess.load(this.FEN);
-    this.ui.boardBox.setContent(
-      `\r\n${fromChessJsBoard(this.chess.board())}`,
-    );
-      this.computerMove(endOfGameCallback);
   }
 
   protected computerMove = (endOfGameCallback: () => void) => {
