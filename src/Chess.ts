@@ -4,7 +4,6 @@
 import * as ChessJs from 'chess.js';
 import { Move } from 'chess.js';
 
-type Square = ChessJs.Square;
 export class ChessGame {
   protected chess;
  
