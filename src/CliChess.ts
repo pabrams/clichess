@@ -2,7 +2,6 @@ import { Command } from 'commander';
 import fetch from 'cross-fetch';
 import * as util from 'util';
 import { Feed } from './Feed';
-import * as Tactics from './PuzzleDb';
 import { PuzzleDb } from './PuzzleDb';
 import { Ui } from './Ui';
 
