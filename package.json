@@ -14,13 +14,10 @@
   },
   "scripts": {
     "clean": "rm -rf dist && rm -rf node_modules",
-    "cleanInstall": "npm run clean && npm i",
     "build": "tsc -p .",
-    "cleanBuild": "npm run cleanInstall && npm run build",
     "start": "node dist/CliChess.js",
-    "go": "npm run build && npm start",
-    "tslib": "^2.3.1",
-    "cleanStart": "npm run cleanBuild && npm start"
+    "feed": "npm run build && npm run start feed",
+    "tactics": "npm run build && npm start tactics"
   },
   "devDependencies": {
     "@types/blessed": "^0.1.19",
