@@ -10,19 +10,12 @@ dotenv.config();
 
 export class Feed {
   protected whitePlayer: Player = new Player();
-
   protected blackPlayer: Player = new Player();
-
   fullTurnCount: number;
-
   chess: ChessGame;
-
   feedUrl: string;
-
   options: any;
-
   command: any;
-
   ui;
 
   constructor(options: any, command: any, feedUrl: string, ui: Ui) {
