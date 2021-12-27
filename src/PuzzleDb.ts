@@ -31,12 +31,13 @@ export class PuzzleDb{
   };
 
   public nextPuzzle = () => {
+    this.ui.logLine('nextPuzzle - index: ' + this.puzzleIndex);
     const puz = new Puzzle(
       this.puzzles[this.puzzleIndex],
       this.ui,
       this.nextPuzzle
     );
-    this.puzzleIndex += 1;
     puz.startGame(this.nextPuzzle);
+    this.puzzleIndex += 1;
   }
 }
