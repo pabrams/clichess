@@ -1,7 +1,6 @@
-
 export const readStream = (
-    processLine: (obj: any) => void 
-  ) => (response: any) => {
+  processLine: (obj: any) => void,
+) => (response: any) => {
   const matcher = /\r?\n/;
   const decoder = new TextDecoder();
   let buf: string|undefined = '';
@@ -9,10 +8,10 @@ export const readStream = (
     response.body.on('data', (v: any) => {
       const chunk = decoder.decode(v, { stream: true });
       buf += chunk;
-      if (buf){
+      if (buf) {
         const parts = buf.split(matcher);
         buf = parts.pop();
-        for (const i of parts.filter(p => p)) processLine(JSON.parse(i));
+        for (const i of parts.filter((p) => p)) processLine(JSON.parse(i));
       }
     });
     response.body.on('end', () => {

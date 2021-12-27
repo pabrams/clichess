@@ -12,6 +12,7 @@ From a command line, execute the following commands.
 - `git clone https://github.com/pabrams/clichess.git`
 - `cd clichess`
 - `npm install`
+- `npm run build`
 - `npm start`
 
 ## Running, using your lichess account
@@ -29,6 +30,6 @@ In order to use most functions, you must have a lichess account, and set up an A
 
 You should now have a .env file containing something like this:
 
-`lichessToken = 'lip_WXSAbdAptdWh4T3yMHbg'`
+`lichessToken = 'lip_whatever'`
 
 Now you can use `npm start` to run clichess.
