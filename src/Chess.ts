@@ -58,11 +58,7 @@ export class ChessGame {
   }
 
   public makeMove = (move: ChessJs.Move | string): ChessJs.Move|null => {
-    console.log("move: " + move);
-    const fen = this.chess.fen();
-    console.log("fen: " + fen);
     const lastMove = this.chess.move(move);
-    console.log("fen after move: " + fen);
     return lastMove;
   }
 }
