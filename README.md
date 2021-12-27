@@ -15,9 +15,11 @@ From a command line, execute the following commands.
 - `npm run build`
 - `npm start`
 
+The tactics command requires that you have a file called 'lichess_db_puzzle.csv.bz2' in the same folder as Clichess (parent of src directory).  [The file is here.](https://database.lichess.org/#puzzles)
+
 ## Running, using your lichess account
 
-In order to use most functions, you must have a lichess account, and set up an API access token, by following these steps:
+In order to use some functions, you must have a lichess account, and set up an API access token, by following these steps:
 
 - rename the clichess file "default.env" to ".env";
 - log into lichess.org;
