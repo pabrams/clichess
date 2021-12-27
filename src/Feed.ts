@@ -45,7 +45,7 @@ export class Feed {
     if (!move) {
       this.chess.load(fen);
     } else {
-      const moved = this.chess.makeStringMove(move);
+      const moved = this.chess.makeMove(move);
       if (!moved) {
         this.chess.load(fen);
         this.ui.logLine(`loaded FEN: ${fen}`);

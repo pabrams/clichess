@@ -2,7 +2,6 @@
  * Mostly just a wrapper for chess.js... mostly
  */
 import * as ChessJs from 'chess.js';
-import { Move } from 'chess.js';
 
 export class ChessGame {
   protected chess;
@@ -54,26 +53,16 @@ export class ChessGame {
 
   public board = () => this.chess.board();
 
-  public makeStringMove = (move: string): ChessJs.Move|null => {
-    let lastChessMove = null;
-    const from = move.substring(0, 2);
-    const to = move.substring(2);
-    const moves = this.chess.moves({ verbose: true, square: from });
-    for (let i = 0; i < moves.length; i++) {
-      if (to === moves[i].to) {
-        lastChessMove = moves[i];
-      }
-    }
+  public undoMove = () => {
+    this.chess.undo();
+  }
 
-    if (lastChessMove) {
-      const lastMove = this.chess.move(lastChessMove, { sloppy: true });
-      return lastMove;
-    }
-    return null;
-  };
-
-  public makeMove = (move: Move): ChessJs.Move|null => {
+  public makeMove = (move: ChessJs.Move | string): ChessJs.Move|null => {
+    console.log("move: " + move);
+    const fen = this.chess.fen();
+    console.log("fen: " + fen);
     const lastMove = this.chess.move(move);
+    console.log("fen after move: " + fen);
     return lastMove;
   }
 }
