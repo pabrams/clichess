@@ -7,13 +7,11 @@ I couldn't get lichs to work, so I decided to make this, instead.
 ## Building and Installing
 
 Install a reasonably recent version of Node.js.
-From a command line, execute the following commands.
+From a command line, execute the following commands, to run a live feed of featured players.
 
 - `git clone https://github.com/pabrams/clichess.git`
 - `cd clichess`
-- `npm install`
-- `npm run build`
-- `npm start`
+- `npm run feed`
 
 The tactics command requires that you have a file called 'lichess_db_puzzle.csv.bz2' in the same folder as Clichess (parent of src directory). The file is at [https://database.lichess.org/#puzzles.](https://database.lichess.org/#puzzles.)
 
