@@ -17,7 +17,7 @@ From a command line, execute the following commands, to run a live feed of featu
 
 Then, to see what other commands are available, use `npm start`.
 
-The tactics command requires that you have a file called 'lichess_db_puzzle.csv.bz2' in the same folder as Clichess (parent of src directory). The file is at [https://database.lichess.org/#puzzles.](https://database.lichess.org/#puzzles.)
+The tactics command requires that you have a file called `lichess_db_puzzle.csv.bz2` in the same folder as Clichess (parent of src directory). The file is at [https://database.lichess.org/#puzzles.](https://database.lichess.org/#puzzles.)
 
 ## Running, using your lichess account
 
