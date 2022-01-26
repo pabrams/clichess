@@ -2,9 +2,10 @@
 # clichess
 
 A terminal-based client for lichess.org, using the lichess API, and the [blessed](https://www.npmjs.com/package/blessed) and [chess.js](https://github.com/jhlywa/chess.js/) libraries, among others.
+
 I couldn't get lichs to work, so I decided to make this, instead.
 
-## Building and Installing
+## Building and Running
 
 Install a reasonably recent version of Node.js.
 
@@ -12,7 +13,9 @@ From a command line, execute the following commands, to run a live feed of featu
 
 - `git clone https://github.com/pabrams/clichess.git`
 - `cd clichess`
-- `npm run feed`
+- `npm run feed`, which also installs dependencies and builds the code.
+
+Then, to see what other commands are available, use `npm start`.
 
 The tactics command requires that you have a file called 'lichess_db_puzzle.csv.bz2' in the same folder as Clichess (parent of src directory). The file is at [https://database.lichess.org/#puzzles.](https://database.lichess.org/#puzzles.)
 
