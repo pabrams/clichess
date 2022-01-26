@@ -7,6 +7,7 @@ I couldn't get lichs to work, so I decided to make this, instead.
 ## Building and Installing
 
 Install a reasonably recent version of Node.js.
+
 From a command line, execute the following commands, to run a live feed of featured players.
 
 - `git clone https://github.com/pabrams/clichess.git`
