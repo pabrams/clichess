@@ -27,7 +27,7 @@ In order to use some functions, you must have a lichess account, and set up an A
   - Click your profile name to open a dropdown menu;
   - Select "Preferences";
   - Select "API access tokens";
-  - Create a new token, giving it whatever permissions you want (I just give the highest, but I guess that's bad practice);
+  - Create a new token, following the principle of least privileged when assigning scope;
 - Go back to the .env file, select the word snickerdoodle (not including any quotes), and paste your API token, instead.
 
 You should now have a .env file containing something like this:
