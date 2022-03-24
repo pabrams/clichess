@@ -38,7 +38,9 @@ export class Feed {
     const fen = ChessGame.fixFen(d.fen);
     if (d.players && d.players.length > 1) {
       this.whitePlayer = new Player();
+      this.whitePlayer.user = d.players[0].user;
       this.blackPlayer = new Player();
+      this.blackPlayer.user = d.players[1].user;
     }
 
     const move = d.lm;
