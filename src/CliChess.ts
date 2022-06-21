@@ -13,7 +13,9 @@ const headers = {
 const puzzleHeaders = {
   Authorization: `Bearer ${process.env.puzzleScope}`,
 };
-
+const readHeaders = {
+  Authorization: `Bearer ${process.env.lichessToken_Read}`,
+}
 const ApiUrl = 'https://lichess.org/api';
 
 const feedUrl = `${ApiUrl}/tv/feed`;
@@ -21,7 +23,7 @@ const cloudEvalUrl = `${ApiUrl}/cloud-eval`;
 const puzzleUrl = `${ApiUrl}/user/puzzle-activity`;
 const prog = new Command();
 
-const ui = new Ui;
+let ui = null;
 
 prog
   .version('0.0.1')
@@ -55,6 +57,7 @@ prog
   .command('feed')
   .description(`stream the current tv game from ${feedUrl}`)
   .action((fen, options, command) => {
+    ui = new Ui;
     const feed = new Feed(options, command, feedUrl, ui);
     feed.go();
   });
@@ -88,13 +91,14 @@ prog
   .command('myprofile')
   .description('display information from your profile')
   .action((options, command) => {
-    genericFetch('/account');
+    genericFetch('/account', readHeaders );
   });
 
 prog
   .command('tactics')
   .description('run the tactics trainer')
   .action((options, command) => {
+    ui = new Ui;
     (new PuzzleDb(ui)).readTacticsCsv();
   });
 
@@ -102,7 +106,14 @@ prog
   .command('mypreferences')
   .description('display information from your preferences')
   .action((options, command) => {
-    genericFetch('/account/preferences');
+    genericFetch('/account/preferences', readHeaders);
+  });
+
+prog
+  .command('myemail')
+  .description('display your email')
+  .action((options, command) => {
+    genericFetch('/account/email', readHeaders);
   });
 
 prog
@@ -113,10 +124,10 @@ prog
     'the portion of the target URL starting after the api folder ....',
   )
   .action((options, command) => {
-    genericFetch(command.apiPath);
+    genericFetch(command.apiPath,  readHeaders )
   });
 
-const genericFetch = (apiPath:string) => {
+const genericFetch = (apiPath:string, headers: any) => {
   fetch(ApiUrl + apiPath, { headers })
     .then((response: { json: () => Promise<any>; }) => {
       response.json()
