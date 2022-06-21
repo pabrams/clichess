@@ -11,7 +11,7 @@ const headers = {
   Authorization: `Bearer ${process.env.lichessToken}`,
 };
 const puzzleHeaders = {
-  Authorization: `Bearer ${process.env.puzzleScope}`,
+  Authorization: `Bearer ${process.env.lichessToken_Puzzle}`,
 };
 const readHeaders = {
   Authorization: `Bearer ${process.env.lichessToken_Read}`,
@@ -117,6 +117,15 @@ prog
   });
 
 prog
+  .command('userdata')
+  .description('display public data for given user')
+  .addHelpText('after', 'example: npm start userdata pabrams')
+  .argument('username', 'user name for desired user data')
+  .action((username:string, options, command) => {
+    genericFetch(`/user/${username}`, readHeaders);
+  });
+
+prog
   .command('generic-api-call')
   .description('provide some parameters to make a generic api call')
   .argument(
@@ -124,7 +133,7 @@ prog
     'the portion of the target URL starting after the api folder ....',
   )
   .action((options, command) => {
-    genericFetch(command.apiPath,  readHeaders )
+    genericFetch(command.apiPath, readHeaders)
   });
 
 const genericFetch = (apiPath:string, headers: any) => {
