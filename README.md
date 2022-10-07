@@ -13,7 +13,8 @@ From a command line, execute the following commands, to run a live feed of featu
 
 - `git clone https://github.com/pabrams/clichess.git`
 - `cd clichess`
-- `npm run feed`, which also installs dependencies and builds the code.
+- `npm install`
+- `npm run feed`, which also builds the code.
 
 Then, to see what other commands are available, use `npm start`.
 
